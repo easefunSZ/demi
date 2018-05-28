@@ -44,3 +44,6 @@ def set_constants():
     constants['acpc_actions']['ccall'] = 'ccall'
     constants['acpc_actions']['raise'] = 'raise'
     return constants
+
+import game_settings
+game_settings.basic_setting()
