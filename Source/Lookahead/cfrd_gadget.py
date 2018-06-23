@@ -5,13 +5,15 @@
 -- @classmod cfrd_gadget
 '''''
 import sys
-sys.path.insert(0,'/Users/lidingcheng/Documents/software/demi/Source/Settings')
-sys.path.insert(0,'/Users/lidingcheng/Documents/software/demi/Source/Game')
+
+sys.path.insert(0, '/Users/lidingcheng/Documents/software/demi/Source/Settings')
+sys.path.insert(0, '/Users/lidingcheng/Documents/software/demi/Source/Game')
 
 import arguments
 import constants
 import game_settings
 import tools
+
 
 class CFRDGadget():
     # arguments = require 'Settings.arguments'
@@ -26,14 +28,15 @@ class CFRDGadget():
     -- @param player_range an initial range vector for the opponent
     -- @param opponent_cfvs the opponent counterfactual values vector used for re-solving
     '''
+
     def __init(self, board, player_range, opponent_cfvs):
-        assert(board)
+        assert (board)
         self.input_opponent_range = player_range.clone()
         self.input_opponent_value = opponent_cfvs.clone()
 
         self.curent_opponent_values = arguments.Tensor(game_settings.card_count)
 
-        self.regret_epsilon = 1.0/100000000
+        self.regret_epsilon = 1.0 / 100000000
 
         ##--2 stands for 2 actions: play/terminate
         self.opponent_reconstruction_regret = arguments.Tensor(2, game_settings.card_count)

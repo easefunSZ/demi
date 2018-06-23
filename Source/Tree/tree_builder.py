@@ -30,9 +30,6 @@ sys.path.insert(0,'../Game')
 sys.path.insert(0,'../Settings')
 import arguments
 import constants
-import game_settings
-import bet_sizing
-import card_tool
 import card_to_string_conversion
 import math
 from bet_sizing import BetSizing

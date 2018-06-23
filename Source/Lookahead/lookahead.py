@@ -1,9 +1,11 @@
 import lookahead_builder
 
 import sys
-sys.path.insert(0,'/Users/lidingcheng/Documents/software/demi/Source/TerminalEquity')
+
+sys.path.insert(0, '/Users/lidingcheng/Documents/software/demi/Source/TerminalEquity')
 import terminal_equity
 import cfrd_gadget
+
 # local arguments = require 'Settings.arguments'
 # local constants = require 'Settings.constants'
 # local game_settings = require 'Settings.game_settings'
@@ -13,6 +15,7 @@ import cfrd_gadget
 --- A depth-limited lookahead of the game tree used for re-solving.
 -- @classmod lookahead
 '''
+
 
 class Lookahead():
     ##--- Constructor
@@ -25,6 +28,7 @@ class Lookahead():
     -- Must be called to initialize the lookahead.
     -- @param tree a public tree
     '''
+
     def build_lookahead(self, tree):
         self.builder.build_from_tree(tree)
         self.terminal_equity = TerminalEquity()
@@ -42,7 +46,8 @@ class Lookahead():
     -- @param player_range a range vector for the re-solving player
     -- @param opponent_range a range vector for the opponent
     '''
-    def resolve_first_node(self,player_range, opponent_range):
+
+    def resolve_first_node(self, player_range, opponent_range):
         self.ranges_data[1][{{}, {}, {}, 1, {}}].copy(player_range)
         self.ranges_data[1][{{}, {}, {}, 2, {}}].copy(opponent_range)
         self._compute()
@@ -57,23 +62,25 @@ class Lookahead():
     -- @param opponent_cfvs a vector of cfvs achieved by the opponent
     -- before re-solving
     '''
+
     def resolve(self, player_range, opponent_cfvs):
-      assert(player_range)
-      assert(opponent_cfvs)
+        assert (player_range)
+        assert (opponent_cfvs)
 
-      self.reconstruction_gadget = CFRDGadget(self.tree.board, player_range, opponent_cfvs)
+        self.reconstruction_gadget = CFRDGadget(self.tree.board, player_range, opponent_cfvs)
 
-      self.ranges_data[1][{{}, {}, {}, 1, {}}]:copy(player_range)
-      self.reconstruction_opponent_cfvs = opponent_cfvs
-      self._compute()
+        self.ranges_data[1][{{}, {}, {}, 1, {}}]:copy(player_range)
+        self.reconstruction_opponent_cfvs = opponent_cfvs
+        self._compute()
 
     '''
     --- Re-solves the lookahead.
     -- @local
     '''
+
     def _compute(self):
         ##--1.0 main loop
-        for iter=1,arguments.cfr_iters:
+        for iter=1, arguments.cfr_iters:
             self._set_opponent_starting_range(iter)
             self._compute_current_strategies()
             self._compute_ranges()
@@ -92,8 +99,9 @@ class Lookahead():
     --- Uses regret matching to generate the players' current strategies.
     -- @local
     '''
+
     def _compute_current_strategies(self):
-        for d=2,self.depth:
+        for d=2, self.depth:
             self.positive_regrets_data[d].copy(self.regrets_data[d])
             self.positive_regrets_data[d].clamp(self.regret_epsilon, tools.max_number())
 
@@ -113,25 +121,27 @@ class Lookahead():
     ## reaching each state of the lookahead.
     ## @local
     def _compute_ranges(self):
-        for d=1,self.depth-1:
+        for d=1, self.depth-1:
             current_level_ranges = self.ranges_data[d]
-            next_level_ranges = self.ranges_data[d+1]
+            next_level_ranges = self.ranges_data[d + 1]
 
-            prev_layer_terminal_actions_count = self.terminal_actions_count[d-1]
-            prev_layer_actions_count = self.actions_count[d-1]
-            prev_layer_bets_count = self.bets_count[d-1]
-            gp_layer_nonallin_bets_count = self.nonallinbets_count[d-2]
-            gp_layer_terminal_actions_count = self.terminal_actions_count[d-2]
-
+            prev_layer_terminal_actions_count = self.terminal_actions_count[d - 1]
+            prev_layer_actions_count = self.actions_count[d - 1]
+            prev_layer_bets_count = self.bets_count[d - 1]
+            gp_layer_nonallin_bets_count = self.nonallinbets_count[d - 2]
+            gp_layer_terminal_actions_count = self.terminal_actions_count[d - 2]
 
             ##copy the ranges of inner nodes and transpose
-            self.inner_nodes[d].copy(current_level_ranges[{{prev_layer_terminal_actions_count+1, -1}, {1, gp_layer_nonallin_bets_count}, {}, {}, {}}].transpose(2,3))
+            self.inner_nodes[d].copy(current_level_ranges[{{prev_layer_terminal_actions_count + 1, -1},
+                                                           {1, gp_layer_nonallin_bets_count}, {}, {}, {}}].transpose(2,
+                                                                                                                     3))
 
             super_view = self.inner_nodes[d]
-            super_view = super_view.view(1, prev_layer_bets_count, -1, constants.players_count, game_settings.card_count)
+            super_view = super_view.view(1, prev_layer_bets_count, -1, constants.players_count,
+                                         game_settings.card_count)
 
             super_view = super_view.expandAs(next_level_ranges)
-            next_level_strategies = self.current_strategy_data[d+1]
+            next_level_strategies = self.current_strategy_data[d + 1]
 
             next_level_ranges.copy(super_view)
 
@@ -141,33 +151,35 @@ class Lookahead():
     ##- Updates the players' average strategies with their current strategies.
     ## @param iter the current iteration number of re-solving
     ## @local
-    def _compute_update_average_strategies(self,iter):
+    def _compute_update_average_strategies(self, iter):
         if iter > arguments.cfr_skip_iters:
             ##no need to go through layers since we care for the average strategy only in the first node anyway
             ##note that if you wanted to average strategy on lower layers, you would need to weight the current strategy by the current reach probability
             self.average_strategies_data[2].add(self.current_strategy_data[2])
 
-
     ##- Using the players' reach probabilities, computes their counterfactual
     ## values at each lookahead state which is a terminal state of the game.
     ## @local
     def _compute_terminal_equities_terminal_equity(self):
-        for d=2,self.depth:
+        for d=2, self.depth:
             ##call term eq evaluation
             if self.tree.street == 1:
-                if d>2 or self.first_call_terminal:
-                    self.terminal_equity.call_value(self.ranges_data[d][2][-1].view(-1, game_settings.card_count), self.cfvs_data[d][2][-1].view(-1, game_settings.card_count))
+                if d > 2 or self.first_call_terminal:
+                    self.terminal_equity.call_value(self.ranges_data[d][2][-1].view(-1, game_settings.card_count),
+                                                    self.cfvs_data[d][2][-1].view(-1, game_settings.card_count))
             else:
-                assert(self.tree.street == 2)
+                assert (self.tree.street == 2)
                 ##on river, any call is terminal
-                if d>2 or self.first_call_terminal:
-                    self.terminal_equity.call_value(self.ranges_data[d][2].view(-1, game_settings.card_count), self.cfvs_data[d][2].view(-1, game_settings.card_count))
+                if d > 2 or self.first_call_terminal:
+                    self.terminal_equity.call_value(self.ranges_data[d][2].view(-1, game_settings.card_count),
+                                                    self.cfvs_data[d][2].view(-1, game_settings.card_count))
 
         ##folds
-        self.terminal_equity.fold_value(self.ranges_data[d][1].view(-1, game_settings.card_count), self.cfvs_data[d][1].view(-1, game_settings.card_count))
+        self.terminal_equity.fold_value(self.ranges_data[d][1].view(-1, game_settings.card_count),
+                                        self.cfvs_data[d][1].view(-1, game_settings.card_count))
 
         ##correctly set the folded player by mutliplying by -1
-        fold_mutliplier = (self.acting_player[d]*2 - 3)
+        fold_mutliplier = (self.acting_player[d] * 2 - 3)
         self.cfvs_data[d][{1, {}, {}, 1, {}}].mul(fold_mutliplier)
         self.cfvs_data[d][{1, {}, {}, 2, {}}].mul(-fold_mutliplier)
 
@@ -176,14 +188,16 @@ class Lookahead():
     ## @local
     def _compute_terminal_equities_next_street_box(self):
 
-        assert(self.tree.street == 1)
+        assert (self.tree.street == 1)
         for d=2, self.depth:
 
             if d > 2 or self.first_call_transition:
                 self.next_street_boxes_inputs = self.next_street_boxes_inputs or {}
                 self.next_street_boxes_outputs = self.next_street_boxes_outputs or {}
-                self.next_street_boxes_inputs[d] = self.next_street_boxes_inputs[d] or self.ranges_data[d][{2, {}, {}, {}, {}}].view(-1, constants.players_count, game_settings.card_count).clone().fill(0)
-                self.next_street_boxes_outputs[d] = self.next_street_boxes_outputs[d] or self.next_street_boxes_inputs[d].clone()
+                self.next_street_boxes_inputs[d] = self.next_street_boxes_inputs[d] or self.ranges_data[d][
+                    {2, {}, {}, {}, {}}].view(-1, constants.players_count, game_settings.card_count).clone().fill(0)
+                self.next_street_boxes_outputs[d] = self.next_street_boxes_outputs[d] or self.next_street_boxes_inputs[
+                    d].clone()
                 ##now the neural net accepts the input for P1 and P2 respectively, so we need to swap the ranges if necessary
                 self.next_street_boxes_outputs[d].copy(self.ranges_data[d][{2, {}, {}, {}, {}}])
 
@@ -194,13 +208,12 @@ class Lookahead():
                 self.next_street_boxes_inputs[d][{{}, 2, {}}].copy(self.next_street_boxes_outputs[d][{{}, 1, {}}])
                 self.next_street_boxes[d].get_value(self.next_street_boxes_inputs[d], self.next_street_boxes_outputs[d])
             ##now the neural net outputs for P1 and P2 respectively, so we need to swap the output values if necessary
-          if self.tree.current_player == 1:
-              self.next_street_boxes_inputs[d].copy(self.next_street_boxes_outputs[d])
-              self.next_street_boxes_outputs[d][{{}, 1, {}}].copy(self.next_street_boxes_inputs[d][{{}, 2, {}}])
-              self.next_street_boxes_outputs[d][{{}, 2, {}}].copy(self.next_street_boxes_inputs[d][{{}, 1, {}}])
+        if self.tree.current_player == 1:
+            self.next_street_boxes_inputs[d].copy(self.next_street_boxes_outputs[d])
+            self.next_street_boxes_outputs[d][{{}, 1, {}}].copy(self.next_street_boxes_inputs[d][{{}, 2, {}}])
+            self.next_street_boxes_outputs[d][{{}, 2, {}}].copy(self.next_street_boxes_inputs[d][{{}, 1, {}}])
 
-          self.cfvs_data[d][{2, {}, {}, {}, {}}].copy(self.next_street_boxes_outputs[d])
-
+        self.cfvs_data[d][{2, {}, {}, {}, {}}].copy(self.next_street_boxes_outputs[d])
 
     ##- Gives the average counterfactual values for the opponent during re-solving
     ## after a chance event (the betting round changes and more cards are dealt).
@@ -212,32 +225,32 @@ class Lookahead():
     ## of the lookahead
     ## @param board a tensor of board cards, updated by the chance event
     ## @return a vector of cfvs
-    def get_chance_action_cfv(self,action_index, board):
+    def get_chance_action_cfv(self, action_index, board):
         box_outputs = None
         next_street_box = None
         batch_index = None
         pot_mult = None
-        assert(not ((action_index == 2) and (self.first_call_terminal)))
+        assert (not ((action_index == 2) and (self.first_call_terminal)))
         ##check if we should not use the first layer for transition call
         if action_index == 2 and self.first_call_transition:
             box_outputs = self.next_street_boxes_inputs[2].clone().fill(0)
-            assert(box_outputs.size(1) == 1)
+            assert (box_outputs.size(1) == 1)
             batch_index = 1
             next_street_box = self.next_street_boxes[2]
             pot_mult = self.pot_size[2][2]
         else:
-            batch_index = action_index - 1 ## remove fold
+            batch_index = action_index - 1  ## remove fold
         if self.first_call_transition:
-          batch_index = batch_index - 1
+            batch_index = batch_index - 1
         box_outputs = self.next_street_boxes_inputs[3].clone().fill(0)
         next_street_box = self.next_street_boxes[3]
         pot_mult = self.pot_size[3][2]
 
         if box_outputs == None:
-            assert(false)
+            assert (false)
         next_street_box.get_value_on_board(board, box_outputs)
         box_outputs.cmul(pot_mult)
-        out = box_outputs[batch_index][3-self.tree.current_player]
+        out = box_outputs[batch_index][3 - self.tree.current_player]
         return out
 
     ##- Using the players' reach probabilities, computes their counterfactual
@@ -251,16 +264,16 @@ class Lookahead():
             self._compute_terminal_equities_next_street_box()
         self._compute_terminal_equities_terminal_equity()
         ##multiply by pot scale factor
-        for d=2,self.depth:
+        for d=2, self.depth:
             self.cfvs_data[d].cmul(self.pot_size[d])
 
     ##- Using the players' reach probabilities and terminal counterfactual
     ## values, computes their cfvs at all states of the lookahead.
     ## @local
     def _compute_cfvs(self):
-        for d=self.depth,2,-1:
-            gp_layer_terminal_actions_count = self.terminal_actions_count[d-2]
-            ggp_layer_nonallin_bets_count = self.nonallinbets_count[d-3]
+        for d=self.depth, 2, -1:
+            gp_layer_terminal_actions_count = self.terminal_actions_count[d - 2]
+            ggp_layer_nonallin_bets_count = self.nonallinbets_count[d - 3]
 
         self.cfvs_data[d][{{}, {}, {}, {1}, {}}].cmul(self.empty_action_mask[d])
         self.cfvs_data[d][{{}, {}, {}, {2}, {}}].cmul(self.empty_action_mask[d])
@@ -273,15 +286,17 @@ class Lookahead():
         torch.sum(self.regrets_sum[d], self.placeholder_data[d], 1)
 
         ##use a swap placeholder to change {{1,2,3}, {4,5,6}} into {{1,2}, {3,4}, {5,6}}
-        swap = self.swap_data[d-1]
+        swap = self.swap_data[d - 1]
         swap.copy(self.regrets_sum[d])
-        self.cfvs_data[d-1][{{gp_layer_terminal_actions_count+1, -1}, {1, ggp_layer_nonallin_bets_count}, {}, {}, {}}].copy(swap.transpose(2,3))
+        self.cfvs_data[d - 1][
+            {{gp_layer_terminal_actions_count + 1, -1}, {1, ggp_layer_nonallin_bets_count}, {}, {}, {}}].copy(
+            swap.transpose(2, 3))
 
     ##- Updates the players' average counterfactual values with their cfvs from the
     ## current iteration.
     ## @param iter the current iteration number of re-solving
     ## @local
-    def _compute_cumulate_average_cfvs(self,iter):
+    def _compute_cumulate_average_cfvs(self, iter):
         if iter > arguments.cfr_skip_iters:
             self.average_cfvs_data[1].add(self.cfvs_data[1])
             self.average_cfvs_data[2].add(self.cfvs_data[2])
@@ -315,18 +330,20 @@ class Lookahead():
     ## for every state in the lookahead.
     ## @local
     def _compute_regrets(self):
-        for d=self.depth,2,-1:
-            gp_layer_terminal_actions_count = self.terminal_actions_count[d-2]
-            gp_layer_bets_count = self.bets_count[d-2]
-            ggp_layer_nonallin_bets_count = self.nonallinbets_count[d-3]
+        for d=self.depth, 2, -1:
+            gp_layer_terminal_actions_count = self.terminal_actions_count[d - 2]
+            gp_layer_bets_count = self.bets_count[d - 2]
+            ggp_layer_nonallin_bets_count = self.nonallinbets_count[d - 3]
 
             current_regrets = self.current_regrets_data[d]
             current_regrets.copy(self.cfvs_data[d][{{}, {}, {}, self.acting_player[d], {}}])
 
-            next_level_cfvs = self.cfvs_data[d-1]
+            next_level_cfvs = self.cfvs_data[d - 1]
 
-            parent_inner_nodes = self.inner_nodes_p1[d-1]
-            parent_inner_nodes.copy(next_level_cfvs[{{gp_layer_terminal_actions_count+1, -1}, {1, ggp_layer_nonallin_bets_count}, {}, self.acting_player[d], {}}].transpose(2,3))
+            parent_inner_nodes = self.inner_nodes_p1[d - 1]
+            parent_inner_nodes.copy(next_level_cfvs[
+                                        {{gp_layer_terminal_actions_count + 1, -1}, {1, ggp_layer_nonallin_bets_count},
+                                         {}, self.acting_player[d], {}}].transpose(2, 3))
             parent_inner_nodes = parent_inner_nodes.view(1, gp_layer_bets_count, -1, game_settings.card_count)
             parent_inner_nodes = parent_inner_nodes.expandAs(current_regrets)
 
@@ -335,8 +352,7 @@ class Lookahead():
             self.regrets_data[d].add(self.regrets_data[d], current_regrets)
 
             ##(CFR+)
-            self.regrets_data[d].clamp(0,  tools.max_number())
-
+            self.regrets_data[d].clamp(0, tools.max_number())
 
     ##- Gets the results of re-solving the lookahead.
     ##
@@ -372,9 +388,12 @@ class Lookahead():
             out.root_cfvs = self.average_cfvs_data[1].view(constants.players_count, game_settings.card_count)[2].clone()
 
         ##swap cfvs indexing
-        out.root_cfvs_both_players = self.average_cfvs_data[1].view(constants.players_count, game_settings.card_count).clone()
-        out.root_cfvs_both_players[2].copy(self.average_cfvs_data[1].view(constants.players_count, game_settings.card_count)[1])
-        out.root_cfvs_both_players[1].copy(self.average_cfvs_data[1].view(constants.players_count, game_settings.card_count)[2])
+        out.root_cfvs_both_players = self.average_cfvs_data[1].view(constants.players_count,
+                                                                    game_settings.card_count).clone()
+        out.root_cfvs_both_players[2].copy(
+            self.average_cfvs_data[1].view(constants.players_count, game_settings.card_count)[1])
+        out.root_cfvs_both_players[1].copy(
+            self.average_cfvs_data[1].view(constants.players_count, game_settings.card_count)[2])
 
         ##4.0 children CFVs
         ##[actions x range]
@@ -392,17 +411,18 @@ class Lookahead():
 
         out.children_cfvs.cdiv(scaler)
 
-        assert(out.strategy)
-        assert(out.achieved_cfvs)
-        assert(out.children_cfvs)
+        assert (out.strategy)
+        assert (out.achieved_cfvs)
+        assert (out.children_cfvs)
         return out
 
     ##- Generates the opponent's range for the current re-solve iteration using
     ## the @{cfrd_gadget|CFRDGadget}.
     ## @param iteration the current iteration number of re-solving
     ## @local
-    def _set_opponent_starting_range(self,iteration):
+    def _set_opponent_starting_range(self, iteration):
         if self.reconstruction_opponent_cfvs:
             ##note that CFVs indexing is swapped, thus the CFVs for the reconstruction player are for player '1'
-            opponent_range = self.reconstruction_gadget.compute_opponent_range(self.cfvs_data[1][{{}, {}, {}, 1, {}}], iteration)
+            opponent_range = self.reconstruction_gadget.compute_opponent_range(self.cfvs_data[1][{{}, {}, {}, 1, {}}],
+                                                                               iteration)
             self.ranges_data[1][{{}, {}, {}, 2, {}}].copy(opponent_range)
