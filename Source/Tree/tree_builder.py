@@ -270,7 +270,8 @@ class PokerTreeBuilder(object):
         assert(params['bet_sizing'])
 
         self.bet_sizing = params['bet_sizing']
-        self.limit_to_street = params['limit_to_street']
+        if 'limit_to_street' in params:
+            self.limit_to_street = params['limit_to_street']
 
         self._build_tree_dfs(root)
 

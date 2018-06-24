@@ -1,44 +1,53 @@
-local arguments = require 'Settings.arguments'
-local constants = require 'Settings.constants'
-local card_tools = require 'Game.card_tools'
-local card_to_string = require 'Game.card_to_string_conversion'
-local game_settings = require 'Settings.game_settings'
-require 'Tree.tree_builder'
-require 'Tree.tree_visualiser'
-require 'Tree.tree_values'
-require 'Tree.tree_cfr'
-require 'Tree.tree_strategy_filling'
-require 'Tree.tree_visualiser'
-require 'Tree.tree_values'
+import os
+import sys
+import numpy as np
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0,os.path.abspath('../../Game'))
+sys.path.insert(0,os.path.abspath('../../Settings'))
+sys.path.insert(0,os.path.abspath('../../Tree'))
+from arguments import params
+import constants
+import game_settings
+import bet_sizing
+import card_tool
+import card_to_string_conversion
+from card_to_string_conversion import CardToString
+import math
+from tree_builder import PokerTreeBuilder
+from tree_visulizer import TreeVisualiser
+from tree_values import TreeValues
+card_to_string = CardToString()
+constants = constants.set_constants()
+builder = PokerTreeBuilder()
 
-local builder = PokerTreeBuilder()
+params = {}
+params['root_node'] = {}
+params['root_node']['board'] = card_to_string.string_to_board('')
+params['root_node']['street'] = 1
+params['root_node']['current_player'] = constants['players']['P1']
+params['root_node']['bets'] = np.zeros((1,1)).fill(100)
 
-local params = {}
-params.root_node = {}
-params.root_node.board = card_to_string:string_to_board('')
-params.root_node.street = 1
-params.root_node.current_player = constants.players.P1
-params.root_node.bets = arguments.Tensor{100, 100}
+tree = builder.build_tree(params)
 
-local tree = builder:build_tree(params)
+filling = TreeStrategyFilling()
 
-local filling = TreeStrategyFilling()
+cardTool = CardTool()
 
-local range1 = card_tools:get_uniform_range(params.root_node.board)
-local range2 = card_tools:get_uniform_range(params.root_node.board)
+range1 = cardTool.get_uniform_range(params['root_node']['board'])
+range2 = cardTool.get_uniform_range(params['root_node']['board'])
 
-filling:fill_strategies(tree, 1, range1, range2)
-filling:fill_strategies(tree, 2, range1, range2)
+filling.fill_strategies(tree, 1, range1, range2)
+filling.fill_strategies(tree, 2, range1, range2)
 
 
-local starting_ranges = arguments.Tensor(constants.players_count, game_settings.card_count)
+starting_ranges = arguments.Tensor(constants.players_count, game_settings.card_count)
 starting_ranges[1]:copy(range1)
 starting_ranges[2]:copy(range2)
 
-local tree_values = TreeValues()
-tree_values:compute_values(tree, starting_ranges)
+tree_values = TreeValues()
+tree_values.compute_values(tree, starting_ranges)
 
-print('Exploitability: ' .. tree.exploitability .. '[chips]' )
+print('Exploitability: '  tree.exploitability .. '[chips]' )
 
 local visualiser = TreeVisualiser()
 visualiser:graphviz(tree)

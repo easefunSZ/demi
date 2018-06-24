@@ -1,28 +1,37 @@
-local arguments = require 'Settings.arguments'
-local constants = require 'Settings.constants'
-local card_to_string = require 'Game.card_to_string_conversion'
-require 'Tree.tree_builder'
-require 'Tree.tree_visualiser'
-require 'Tree.tree_values'
+import os
+import sys
+import numpy as np
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0,os.path.abspath('../../Game'))
+sys.path.insert(0,os.path.abspath('../../Settings'))
+sys.path.insert(0,os.path.abspath('../../Tree'))
+from arguments import params
+import constants
+import game_settings
+import bet_sizing
+import card_tool
+import card_to_string_conversion
+from card_to_string_conversion import CardToString
+import math
+from tree_builder import PokerTreeBuilder
+from tree_visulizer import TreeVisualiser
+from tree_values import TreeValues
+card_to_string = CardToString()
+constants = constants.set_constants()
+builder = PokerTreeBuilder()
 
+params = {}
+params['root_node'] = {}
+params['root_node']['board'] = card_to_string.string_to_board('')
+params['root_node']['street'] = 1
+params['root_node']['current_player'] = constants['players']['P1']
+params['root_node']['bets'] = np.zeros((1,1)).fill(100)
 
-local builder = PokerTreeBuilder()
-
-local params = {}
-
-params.root_node = {}
-params.root_node.board = card_to_string:string_to_board('')
-params.root_node.street = 1
-params.root_node.current_player = constants.players.P1
-params.root_node.bets = arguments.Tensor{100, 100}
-
-local tree = builder:build_tree(params)
-
-
-local tree_values = TreeValues()
-tree_values:compute_values(tree)
+tree = builder.build_tree(params)
+tree_values = TreeValues()
+tree_values.compute_values(tree)
 
 print('Exploitability: ' .. tree.exploitability .. '[chips]' )
 
-local visualiser = TreeVisualiser()
-visualiser:graphviz(tree)
+visualiser = TreeVisualiser()
+visualiser.graphviz(tree)
