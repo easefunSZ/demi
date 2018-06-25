@@ -25,12 +25,13 @@ import os
 import sys
 import numpy as np
 import copy
-sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0,'../Game')
-sys.path.insert(0,'../Settings')
+# sys.path.insert(0, os.path.abspath('..'))
+# sys.path.insert(0,'../Game')
+# sys.path.insert(0,'../Settings')
 import arguments
-import constants
+from constants import constants
 import card_to_string_conversion
+
 import math
 from bet_sizing import BetSizing
 from strategy_filling import StrategyFilling
@@ -128,20 +129,21 @@ class PokerTreeBuilder(object):
         fold_node['current_player'] = 3 - parent_node['current_player']
         fold_node['street'] = parent_node['street']
         fold_node['board'] = parent_node['board']
-        fold_node['board_string'] = parent_node['board_string']
-        fold_node['bets'] = copy.deepcopy(parent_node.bets)
+        if 'board_string' in parent_node:
+            fold_node['board_string'] = parent_node['board_string']
+        fold_node['bets'] = copy.deepcopy(parent_node['bets'])
         children[0] = fold_node
 
         ##--2.0 check action
-        if parent_node['current_player'] == constants['players']['P1'] \
-                and (parent_node['bets'][1] == parent_node['bets'][2]):
+        if parent_node['current_player'] == constants['players']['P1'] and (parent_node['bets'][0] == parent_node['bets'][1]):
             check_node = {}
             check_node['type'] = constants['node_types']['check']
             check_node['terminal'] = False
             check_node['current_player'] = 3 - parent_node['current_player']
             check_node['street'] = parent_node['street']
             check_node['board'] = parent_node['board']
-            check_node['board_string'] = parent_node['board_string']
+            if 'board_string' in parent_node:
+                check_node['board_string'] = parent_node['board_string']
             check_node['bets'] = copy.deepcopy(parent_node['bets'])
             children[len(children)] = check_node
         ##--transition call
@@ -195,11 +197,15 @@ class PokerTreeBuilder(object):
     def _get_children_nodes(self,parent_node):
 
         ##--is this a transition call node (leading to a chance node)?
-        call_is_transit = parent_node['current_player'] == constants['players']['P2'] and parent_node.bets[1] == parent_node.bets[2] and parent_node['street'] < constants['streets_count']
+
+        call_is_transit = parent_node['current_player'] == constants['players']['P2']
+        call_is_transit = call_is_transit and parent_node.bets[1] == parent_node.bets[2]
+        call_is_transit = call_is_transit and parent_node['street'] < constants['streets_count']
 
         chance_node = parent_node['current_player'] == constants['players']['chance']
         ##--transition call -> create a chance node
-        if parent_node['terminal']:
+
+        if 'terminal' in parent_node:
             return {}
         ##--chance node
         elif chance_node:
@@ -264,7 +270,7 @@ class PokerTreeBuilder(object):
 
         #params['bet_sizing'] = params['bet_sizing'] or BetSizing(np.zeros(arguments['bet_sizing']))
         if 'bet_sizing' not in params:
-            bet_sizing = BetSizing(np.zeros(len(self.param_args['bet_sizing'])))
+            bet_sizing = BetSizing(np.full((1, 1), 1))  #this was from setting self.param_args['bet_sizing'])
             params['bet_sizing'] = bet_sizing
 
         assert(params['bet_sizing'])

@@ -43,6 +43,6 @@ params['epoch_count']=FLAGS.epoch_count
 params['train_data_count']=FLAGS.train_data_count
 params['valid_data_count']=FLAGS.valid_data_count
 params['learning_rate']=FLAGS.learning_rate
-params['Tensor']=np.zeros([2,2],dtype=float)
+params['Tensor']=np.zeros([2,2],dtype=float) # try not use this
 
 
