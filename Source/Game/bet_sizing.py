@@ -37,24 +37,24 @@ class BetSizing:
 -- @return an Nx2 tensor where N is the number of new possible game states,
 -- containing N sets of new commitment levels for each player
     '''
-    def get_possible_bets(self,node):
+    def get_possible_bets(self, node):
         current_player = node['current_player']
-        assert(current_player == 1 or current_player == 2, 'Wrong player for bet size computation')
-        opponent = 3 - node['current_player']
-        opponent_bet = node['bets'][opponent -1] ## index from 0, different from lua
-        assert(node['bets'][current_player - 1] <= opponent_bet)
+        assert(current_player == 0 or current_player == 1, 'Wrong player for bet size computation')
+        opponent = 1 - node['current_player']
+        opponent_bet = node['bets'][opponent]
+        assert(node['bets'][current_player] <= opponent_bet)
         ##--compute min possible raise size
         max_raise_size = params['stack'] - opponent_bet
-        min_raise_size = opponent_bet - node['bets'][current_player - 1]
+        min_raise_size = opponent_bet - node['bets'][current_player]
         min_raise_size = max(min_raise_size, params['ante'])
         min_raise_size = min(max_raise_size, min_raise_size)
         ###not so sure how we should obtain the tensor parameters.
         ###it looks that we should directly use tensorflow to get float tensor
         if min_raise_size == 0:
-            return params['Tensor']
+            return None
         elif min_raise_size == max_raise_size:
-            out = params['Tensor'] = np.zeros([1,1],dtype=float)
-            out[1,current_player] = opponent_bet+min_raise_size
+            out = np.full([1, 2], opponent_bet, dtype=float)
+            out[0, current_player] = opponent_bet + min_raise_size
             return out
         else:
             ##--iterate through all bets and check if they are possible
@@ -68,11 +68,11 @@ class BetSizing:
             #--try all pot fractions bet and see if we can use them
             for i in range(0, len(self.pot_fractions)):
                 raise_size = pot * self.pot_fractions[i]
-                if raise_size >= min_raise_size and raise_size < max_raise_size:
+                if min_raise_size <= raise_size < max_raise_size:
                     used_bets_count = used_bets_count + 1
-                    out[used_bets_count - 1, current_player - 1] = opponent_bet + raise_size # index starts from 0, different with lua
+                    out[used_bets_count - 1, current_player] = opponent_bet + raise_size # index starts from 0, different with lua
             ##--adding allin
             used_bets_count    = used_bets_count + 1
             assert(used_bets_count <= max_possible_bets_count)
-            out[used_bets_count - 1, current_player - 1] = opponent_bet + max_raise_size
-            return out[0:used_bets_count,]
+            out[used_bets_count - 1, current_player] = opponent_bet + max_raise_size
+            return out[0:used_bets_count, ]

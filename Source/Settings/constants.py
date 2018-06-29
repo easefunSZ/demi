@@ -10,12 +10,12 @@ constants['player_count'] = 2
 constants['street_count'] = 2
 ##IDs for each player and chance
 ##@field chance 0
-##@field P1 1
-##@field P2 2
+##@field P1 0
+##@field P2 1
 constants['players'] = {}
-constants['players']['chance'] = 0
-constants['players']['P1'] = 1
-constants['players']['P2'] = 2
+constants['players']['chance'] = 2
+constants['players']['P1'] = 0
+constants['players']['P2'] = 1
 ## IDs for terminal nodes (either after a fold or call action) and nodes that follow a check action
 ## @field terminal_fold (terminal node following fold) `-2`
 ## @field terminal_call (terminal node following call) `-1`

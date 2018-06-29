@@ -126,7 +126,7 @@ class PokerTreeBuilder(object):
         fold_node = {}
         fold_node['type'] = constants['node_types']['terminal_fold']
         fold_node['terminal'] = True
-        fold_node['current_player'] = 3 - parent_node['current_player']
+        fold_node['current_player'] = 1 - parent_node['current_player']
         fold_node['street'] = parent_node['street']
         fold_node['board'] = parent_node['board']
         if 'board_string' in parent_node:
@@ -139,7 +139,7 @@ class PokerTreeBuilder(object):
             check_node = {}
             check_node['type'] = constants['node_types']['check']
             check_node['terminal'] = False
-            check_node['current_player'] = 3 - parent_node['current_player']
+            check_node['current_player'] = 1 - parent_node['current_player']
             check_node['street'] = parent_node['street']
             check_node['board'] = parent_node['board']
             if 'board_string' in parent_node:
@@ -148,9 +148,9 @@ class PokerTreeBuilder(object):
             children[len(children)] = check_node
         ##--transition call
         elif parent_node['street'] == 1 and ((parent_node['current_player'] == constants['players']['P2']
-                                               and parent_node['bets'][1,] == parent_node['bets'][2,])
-                                             or (parent_node['bets'][1,] != parent_node['bets'][2,]
-                                                 and np.max(parent_node['bets'])  < arguments['stack'])):
+                                               and parent_node['bets'][0] == parent_node['bets'][1])
+                                             or (parent_node['bets'][0] != parent_node['bets'][1]
+                                                 and np.max(parent_node['bets']) < arguments['stack'])):
             chance_node = {}
             chance_node['node_type'] = constants['node_types']['chance_node']
             chance_node['street'] = parent_node['street']
@@ -164,7 +164,7 @@ class PokerTreeBuilder(object):
             terminal_call_node = {}
             terminal_call_node['type'] = constants['node_types']['terminal_call']
             terminal_call_node['terminal'] = True
-            terminal_call_node['current_player'] = 3 - parent_node['current_player']
+            terminal_call_node['current_player'] = 1 - parent_node['current_player']
             terminal_call_node['street'] = parent_node['street']
             terminal_call_node['board'] = parent_node['board']
             terminal_call_node['board_string'] = parent_node['board_string']
@@ -174,13 +174,13 @@ class PokerTreeBuilder(object):
         ##--3.0 bet actions
         possible_bets = self.bet_sizing.get_possible_bets(parent_node)
 
-        if possible_bets.dim() != 0:
-            assert(possible_bets.size(2) == 2)
+        if possible_bets is not None:
+            assert(possible_bets.shape[1] == 2)  # each row represents bets of current player and opponent
 
-            for i in range(1,possible_bets.size(1)):
+            for i in range(0, possible_bets.shape[0]):
                 child = {}
                 child['parent'] = parent_node
-                child['current_player'] = 3 - parent_node['current_player']
+                child['current_player'] = 1 - parent_node['current_player']
                 child['street'] = parent_node['street']
                 child['board'] = parent_node['board']
                 child['board_string'] = parent_node['board_string']
@@ -194,12 +194,12 @@ class PokerTreeBuilder(object):
     -- @return a list of children nodes
     -- @local
     '''
-    def _get_children_nodes(self,parent_node):
+    def _get_children_nodes(self, parent_node):
 
-        ##--is this a transition call node (leading to a chance node)?
+        #--is this a transition call node (leading to a chance node)?
 
         call_is_transit = parent_node['current_player'] == constants['players']['P2']
-        call_is_transit = call_is_transit and parent_node.bets[1] == parent_node.bets[2]
+        call_is_transit = call_is_transit and parent_node.bets[0] == parent_node.bets[1]
         call_is_transit = call_is_transit and parent_node['street'] < constants['streets_count']
 
         chance_node = parent_node['current_player'] == constants['players']['chance']
