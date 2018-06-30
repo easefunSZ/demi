@@ -25,11 +25,16 @@ import os
 import sys
 import numpy as np
 import copy
-# sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('..'))
 # sys.path.insert(0,'../Game')
 # sys.path.insert(0,'../Settings')
-import arguments
+sys.path.insert(0, os.path.abspath('Game'))
+sys.path.insert(0, os.path.abspath('Settings'))
+from arguments import params
 from constants import constants
+from card_tool import CardTool
+
+sys.path.insert(0, 'Game')
 import card_to_string_conversion
 
 import math
@@ -47,7 +52,7 @@ class PokerTreeBuilder(object):
 
     # ##--- Constructor
     def __init__(self):
-        self.param_args = arguments.params
+        self.param_args = params
         pass
 
     '''
@@ -57,7 +62,7 @@ class PokerTreeBuilder(object):
     -- @return a list containing the child node
     -- @local
     '''
-    def _get_children_nodes_transition_call(self,parent_node):
+    def _get_children_nodes_transition_call(self, parent_node):
 
         chance_node = {}
         chance_node['node_type'] = constants.node_types.chance_node
@@ -74,20 +79,21 @@ class PokerTreeBuilder(object):
     -- @return a list of children nodes
     -- @local
     '''
-    def _get_children_nodes_chance_node(self,parent_node):
-        assert(parent_node.current_player == constants.players.chance)
+    def _get_children_nodes_chance_node(self, parent_node):
+        assert(parent_node['current_player'] == constants['players']['chance'])
 
-        if self.limit_to_street:
+        if hasattr(self, 'limit_to_street'):
             return {}
 
-        next_boards = card_tools.get_second_round_boards()
-        next_boards_count = next_boards.size(1)
+        cardTool = CardTool() # not the right way
+        next_boards = cardTool.get_second_round_boards()
+        next_boards_count = len(next_boards)
 
         subtree_height = -1
         children = {}
 
         ##--1.0 iterate over the next possible boards to build the corresponding subtrees
-        for i in range(1,next_boards_count):
+        for i in range(1, next_boards_count):
             next_board = next_boards[i]
             next_board_string = card_to_string_conversion.cards_to_string(next_board)
             child = {}
@@ -108,7 +114,7 @@ class PokerTreeBuilder(object):
     -- @param node the node
     -- @local
     '''
-    def _fill_additional_attributes(self,node):
+    def _fill_additional_attributes(self, node):
         node['pot'] = np.min(node['bets'])
 
 
@@ -129,7 +135,7 @@ class PokerTreeBuilder(object):
         fold_node['current_player'] = 1 - parent_node['current_player']
         fold_node['street'] = parent_node['street']
         fold_node['board'] = parent_node['board']
-        if 'board_string' in parent_node:
+        if 'board_string' in parent_node: # should we add this if?
             fold_node['board_string'] = parent_node['board_string']
         fold_node['bets'] = copy.deepcopy(parent_node['bets'])
         children[0] = fold_node
@@ -150,12 +156,13 @@ class PokerTreeBuilder(object):
         elif parent_node['street'] == 1 and ((parent_node['current_player'] == constants['players']['P2']
                                                and parent_node['bets'][0] == parent_node['bets'][1])
                                              or (parent_node['bets'][0] != parent_node['bets'][1]
-                                                 and np.max(parent_node['bets']) < arguments['stack'])):
+                                                 and np.max(parent_node['bets']) < params['stack'])):
             chance_node = {}
             chance_node['node_type'] = constants['node_types']['chance_node']
             chance_node['street'] = parent_node['street']
             chance_node['board'] = parent_node['board']
-            chance_node['board_string'] = parent_node['board_string']
+            if 'board_string' in parent_node:
+                chance_node['board_string'] = parent_node['board_string']
             chance_node['current_player'] = constants['players']['chance']
             chance_node['bets'] = copy.deepcopy(parent_node['bets']).fill(np.max(parent_node['bets']))
             children[len(children)] = chance_node
@@ -183,7 +190,8 @@ class PokerTreeBuilder(object):
                 child['current_player'] = 1 - parent_node['current_player']
                 child['street'] = parent_node['street']
                 child['board'] = parent_node['board']
-                child['board_string'] = parent_node['board_string']
+                if 'board_string' in parent_node:
+                    child['board_string'] = parent_node['board_string']
                 child['bets'] = possible_bets[i]
                 children[len(children)] = child
         return children
@@ -199,7 +207,7 @@ class PokerTreeBuilder(object):
         #--is this a transition call node (leading to a chance node)?
 
         call_is_transit = parent_node['current_player'] == constants['players']['P2']
-        call_is_transit = call_is_transit and parent_node.bets[0] == parent_node.bets[1]
+        call_is_transit = call_is_transit and parent_node['bets'][0] == parent_node['bets'][1]
         call_is_transit = call_is_transit and parent_node['street'] < constants['streets_count']
 
         chance_node = parent_node['current_player'] == constants['players']['chance']
@@ -221,21 +229,24 @@ class PokerTreeBuilder(object):
     -- @return `current_node` after the (sub)tree has been built
     -- @local
     '''
-    def _build_tree_dfs(self,current_node):
+    def _build_tree_dfs(self, current_node):
 
         self._fill_additional_attributes(current_node)
         children = self._get_children_nodes(current_node)
-        current_node.children = children
+        current_node['children'] = children
         depth = 0
-        current_node.actions = np.zeros(len(children))
-        for i in range(1,len(children)):
+        current_node['actions'] = np.zeros(len(children))
+        # print("len: " + str(len(children)))
+        for i in range(0, len(children)):
+            print("len: " + str(len(children)))
+            print("i " + str(i))
             children[i]['parent'] = current_node
             self._build_tree_dfs(children[i])
-            depth = np.max(depth, children[i]['depth'])
+            depth = max(depth, children[i]['depth'])
 
-            if i == 1:
+            if i == 0:
                 current_node['actions[i]'] = constants['actions']['fold']
-            elif i == 2:
+            elif i == 1:
                 current_node['actions[i]'] = constants['actions']['ccall']
             else:
                 current_node['actions[i]'] = np.max(children[i]['bets'])
@@ -260,7 +271,7 @@ class PokerTreeBuilder(object):
     -- bets for each player
     -- @return the root node of the built tree
     '''
-    def build_tree(self,params):
+    def build_tree(self, params):
         root = {}
         ##--copy necessary stuff from the root_node not to touch the input
         root['street'] = params['root_node']['street']

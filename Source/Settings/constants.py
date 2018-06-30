@@ -7,7 +7,7 @@ constants = {}
 ##the number of players in the game
 constants['player_count'] = 2
 ##the number of betting rounds in the game
-constants['street_count'] = 2
+constants['streets_count'] = 2
 ##IDs for each player and chance
 ##@field chance 0
 ##@field P1 0

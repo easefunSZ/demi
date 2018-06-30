@@ -87,13 +87,13 @@ class CardToString(object):
         result.append(self.string_to_card(card_string))
         return result
 
-cardToString = CardToString();
-print(cardToString.card_to_string_table)
-for card in range(1, 7):
-    print(str(cardToString.card_to_suit(card)) + ": " + str(cardToString.card_to_rank(card)))
-    print(cardToString.card_to_string(card))
-cards = [1, 2, 3, 4, 5,6]
-print(cardToString.cards_to_string(cards))
-print(cardToString.string_to_card_table)
-print(cardToString.string_to_card('Ks'))
-print(cardToString.string_to_board('Ks'))
+# cardToString = CardToString();
+# print(cardToString.card_to_string_table)
+# for card in range(1, 7):
+#     print(str(cardToString.card_to_suit(card)) + ": " + str(cardToString.card_to_rank(card)))
+#     print(cardToString.card_to_string(card))
+# cards = [1, 2, 3, 4, 5,6]
+# print(cardToString.cards_to_string(cards))
+# print(cardToString.string_to_card_table)
+# print(cardToString.string_to_card('Ks'))
+# print(cardToString.string_to_board('Ks'))
