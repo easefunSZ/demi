@@ -47,7 +47,7 @@ from strategy_filling import StrategyFilling
 # card_to_string = card_to_string_conversion
 # strategy_filling = strategy_filling
 # bet_sizing = bet_sizing
-
+card_to_string_conversion = card_to_string_conversion.CardToString()
 class PokerTreeBuilder(object):
 
     # ##--- Constructor

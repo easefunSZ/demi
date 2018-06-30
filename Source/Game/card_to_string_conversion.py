@@ -17,18 +17,6 @@ import math
 
 class CardToString(object):
 
-    # --- Gets the suit of a card.
-    # -- @param card the numeric representation of the card
-    # -- @return the index of the suit
-    def card_to_suit(self, card):
-        return int(card % self.m['suit_count'] + 1)
-
-    # --- Gets the rank of a card.
-    # -- @param card the numeric representation of the card
-    # -- @return the index of the rank
-    def card_to_rank(self, card):
-        return int(math.floor((card -1) / self.m['suit_count']) + 1)
-
     def __init__(self):
         self.m = game_settings.basic_setting()
         # ---All possible card suits - only the first 2 are used in Leduc Hold'em.
@@ -51,6 +39,18 @@ class CardToString(object):
         for card in range(0, self.m['card_count']):
             self.string_to_card_table[self.card_to_string_table[card]] = card
 
+
+    # --- Gets the suit of a card.
+    # -- @param card the numeric representation of the card
+    # -- @return the index of the suit
+    def card_to_suit(self, card):
+        return int(card % self.m['suit_count'] + 1)
+
+    # --- Gets the rank of a card.
+    # -- @param card the numeric representation of the card
+    # -- @return the index of the rank
+    def card_to_rank(self, card):
+        return int(math.floor((card -1) / self.m['suit_count']) + 1)
 
     def card_to_string(self, card):
         return self.card_to_string_table[card -1]
