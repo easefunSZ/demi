@@ -15,6 +15,7 @@ sys.path.insert(0,'../Settings')
 
 import game_settings
 import math
+import numpy as np
 
 
 class CardTool(object):
@@ -24,9 +25,8 @@ class CardTool(object):
     def hand_is_possible(self, hand):
         # print(min(hand)>0)
         # print(max(hand) <= self.m['card_count'])
-        assert min(hand) > 0 and max(hand) <= self.m['card_count']
+        assert min(hand) >= 0 and max(hand) < self.m['card_count']
         used_cards = [False] * self.m['card_count']
-        print(used_cards)
         for i in range(0, len(hand)):
             if used_cards[hand[i]]:
                 return False
@@ -38,11 +38,16 @@ class CardTool(object):
     # -- @return a vector with an entry for every possible hand (private card), which
     # --  is `1` if the hand shares no cards with the board and `0` otherwise
     def get_possible_hand_indexes(self, board):
-        out = [1] * self.m['card_count']
-        if not board:
+        out = [0] * self.m['card_count']
+        if len(board) == 0:
             return out
-        for x in range(0, len(board)):
-            out[board[x]] = 0
+
+        whole_hand = np.zeros(len(board) + 1, dtype=int)
+        whole_hand[0:-1] = board
+        for card in range(0, self.m['card_count']):
+            whole_hand[-1] = card
+            if self.hand_is_possible(whole_hand):
+                out[card] = 1
         return out
 
     # --- Gives the private hands which are invalid with a given board.
@@ -120,10 +125,11 @@ class CardTool(object):
     # -- the number of cards on each board
     # only support 1 card for now
     def get_second_round_boards(self):
-        out = [0] * self.m['card_count']
+        # out = [0] * self.m['card_count']
+        out = np.full([self.m['card_count'], 1], 0)
         if self.m['board_card_count'] == 1:
             for card in range(0, len(out)):
-                out[card] = card
+                out[card][0] = card
         return out
 
     # def _init_board_index_table(self):
@@ -145,17 +151,17 @@ class CardTool(object):
         return rangeVector
 
 
-cardTool = CardTool()
-print(cardTool.hand_is_possible([2]))
-print(cardTool.get_possible_hand_indexes([2,3]))
-print(cardTool.get_impossible_hand_indexes([3]))
-print(cardTool.get_uniform_range([1]))
-print(cardTool.get_random_range([0]))
-print(cardTool.is_valid_range([0.1, 0.2, 0.3, 0.0, 0.1, 0.3], [3]))
-print(cardTool.board_to_street([1]))
-print(cardTool.get_boards_count())
-print(cardTool.get_second_round_boards())
-print(cardTool.normalize_range([1], [0.1, 0.5, 0.23, 0.6, 0.0, 1]))
+# cardTool = CardTool()
+# print(cardTool.hand_is_possible([2]))
+# print(cardTool.get_possible_hand_indexes([2,3]))
+# print(cardTool.get_impossible_hand_indexes([3]))
+# print(cardTool.get_uniform_range([1]))
+# print(cardTool.get_random_range([0]))
+# print(cardTool.is_valid_range([0.1, 0.2, 0.3, 0.0, 0.1, 0.3], [3]))
+# print(cardTool.board_to_street([1]))
+# print(cardTool.get_boards_count())
+# print(cardTool.get_second_round_boards())
+# print(cardTool.normalize_range([1], [0.1, 0.5, 0.23, 0.6, 0.0, 1]))
 
 
 

@@ -26,17 +26,20 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, '../Game')
 sys.path.insert(0, '../Settings')
 import arguments
-import constants
+from constants import constants
 import game_settings
-import card_tool
+from card_tool import CardTool
 import math
+import numpy as np
 
+game_settings_M = game_settings.basic_setting()
 
 class StrategyFilling(object):
 
     ##--- Constructor
     def _init_(self):
         self.value = 0
+        self.game
 
     '''
     --- Fills a chance node with the probability of each outcome.
@@ -45,21 +48,26 @@ class StrategyFilling(object):
     '''
 
     def _fill_chance(self, node):
-        assert (not node.terminal)
+        assert (not ('terminal' in node and node['terminal']))
 
         '''
         --filling strategy
         --we will fill strategy with an uniform probability, but it has to be zero for hands that are not possible on
         --corresponding board
         '''
-        node.strategy = arguments.Tensor(len(node.children), game_settings.card_count).fill(0)
+
+        node['strategy'] = np.full([len(node['children']), game_settings_M['card_count']], 0.0)
         ##--setting probability of impossible hands to 0
-        for i in range(node.children):
-            child_node = node.children[i]
-            mask = card_tools.get_possible_hand_indexes(child_node.board).byte()
-            node.strategy[i].fill(0)
+        for i in range(0, len(node['children'])):
+            child_node = node['children'][i]
+            card_tools = CardTool() # correct way?
+            possible_hand_indexes = card_tools.get_possible_hand_indexes(child_node['board'])
+
+            node['strategy'][i].fill(0)
+            for card in range(0, len(node['strategy'])):
             ##--remove 2 because each player holds one card
-            node.strategy[i][mask] = 1.0 / (game_settings.card_count - 2)
+                if possible_hand_indexes[card] != 0:
+                    node['strategy'][i][card] = 1.0 / (game_settings_M['card_count'] - 2)
 
     '''
       --- Fills a player node with a uniform strategy.
@@ -69,12 +77,12 @@ class StrategyFilling(object):
     '''
 
     def _fill_uniformly(self, node):
-        assert (node.current_player == constants.players.P1 or node.current_player == constants.players.P2)
+        assert (node['current_player'] == constants['players']['P1'] or node['current_player'] == constants['players']['P2'])
 
-        if (node.terminal):
+        if 'terminal' in node and node['terminal']:
             return
 
-        node.strategy = arguments.Tensor(len(node.children), game_settings.card_count).fill(1.0 / len(node.children))
+        node['strategy'] = np.full([len(node['children']), game_settings_M['card_count']], (1.0 / len(node['children'])), dtype=float)
 
     '''
     --- Fills a node with a uniform strategy and recurses on the children.
@@ -83,13 +91,13 @@ class StrategyFilling(object):
     '''
 
     def _fill_uniform_dfs(self, node):
-        if node.current_player == constants.players.chance:
+        if node['current_player'] == constants['players']['chance']:
             self._fill_chance(node)
         else:
             self._fill_uniformly(node)
 
-        for i in range(node.children):
-            self._fill_uniform_dfs(node.children[i])
+        for i in range(0, len(node['children'])):
+            self._fill_uniform_dfs(node['children'][i])
 
     '''
     --- Fills a public tree with a uniform strategy.
