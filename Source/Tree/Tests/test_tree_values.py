@@ -14,7 +14,7 @@ import card_to_string_conversion
 from card_to_string_conversion import CardToString
 import math
 from tree_builder import PokerTreeBuilder
-from tree_visulizer import TreeVisualiser
+#from tree_visulizer import TreeVisualiser
 from tree_values import TreeValues
 card_to_string = CardToString()
 constants = constants.set_constants()
@@ -31,7 +31,7 @@ tree = builder.build_tree(params)
 tree_values = TreeValues()
 tree_values.compute_values(tree)
 
-print('Exploitability: ' .. tree.exploitability .. '[chips]' )
+print('Exploitability: %d [chips]' % (tree.exploitability))
 
-visualiser = TreeVisualiser()
-visualiser.graphviz(tree)
+#visualiser = TreeVisualiser()
+#visualiser.graphviz(tree)

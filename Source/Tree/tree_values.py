@@ -4,24 +4,35 @@
 -- @classmod tree_values
 '''''
 import sys
-
+import math
+import os
 sys.path.insert(0, '../Settings')
 sys.path.insert(0, '../Game')
 sys.path.insert(0, '../Lookahead')
 sys.path.insert(0, '../TerminalEquity')
-from settings import arguments
-from settings import constants
-from settings import game_settings
-from Game import card_tools
-from Lookahead import mock_resolving
-from Lookahead import resolving
-from TerminalEquity import terminal_equity
+sys.path.insert(0,os.path.abspath('../../Tree'))
+
+
+from arguments import params
+from constants import constants
+import game_settings
+import bet_sizing
+import card_tool
+from card_to_string_conversion import CardToString
+import tree_builder
+card_to_string = CardToString()
+# constants = constants.set_constants()
+builder = tree_builder.PokerTreeBuilder()
+
+import mock_resolving
+import resolving
+from terminal_equity import TerminalEquity
 
 
 class TreeValues(object):
 
     ##--- Constructor
-    def _init_(self):
+    def __init__(self):
         self.terminal_equity = TerminalEquity()
 
     '''

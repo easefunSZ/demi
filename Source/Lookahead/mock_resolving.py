@@ -1,9 +1,13 @@
---- Implements the re-solving interface used by @{resolving} with functions
--- that do nothing.
--- 
--- Used for debugging.
--- @classmod mock_resolving
+# --- Implements the re-solving interface used by @{resolving} with functions
+# -- that do nothing.
+# --
+# -- Used for debugging.
+# -- @classmod mock_resolving
 
+import sys
+sys.path.insert(0, '../TerminalEquity')
+sys.path.insert(0, '../Lookahead')
+from lookahead import Lookahead
 require 'Lookahead.lookahead'
 require 'Lookahead.cfrd_gadget'
 require 'Tree.tree_builder'

@@ -3,8 +3,8 @@ import lookahead_builder
 import sys
 
 sys.path.insert(0, '/Users/lidingcheng/Documents/software/demi/Source/TerminalEquity')
-import terminal_equity
-import cfrd_gadget
+from terminal_equity import TerminalEquity
+from cfrd_gadget import CFRDGadget
 
 # local arguments = require 'Settings.arguments'
 # local constants = require 'Settings.constants'
@@ -19,8 +19,8 @@ import cfrd_gadget
 
 class Lookahead():
     ##--- Constructor
-    def __init(self):
-        self.builder = self.LookaheadBuilder(self)
+    def __init__(self):
+        self.builder = LookaheadBuilder(self)
 
     '''
     --- Constructs the lookahead from a game's public tree.

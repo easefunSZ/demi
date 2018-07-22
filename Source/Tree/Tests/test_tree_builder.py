@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+import math
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0,os.path.abspath('../../Game'))
 sys.path.insert(0,os.path.abspath('../../Settings'))
@@ -11,7 +12,6 @@ import game_settings
 import bet_sizing
 import card_tool
 from card_to_string_conversion import CardToString
-import math
 import tree_builder
 card_to_string = CardToString()
 # constants = constants.set_constants()

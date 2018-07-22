@@ -4,17 +4,24 @@
 '''
 
 import torch
+from torch import nn, optim
+from torch.autograd import Variable
 import sys
+import math
+import cmath
+import numpy as np
 sys.path.insert(0,'../Settings')
 sys.path.insert(0,'../Game')
 import game_settings
 import evaluator
 import arguments
 import card_tools
+from arguments import params
 
-class TerminalEquity():
+class TerminalEquity(object):
     ##--- Constructor
-    #def init():
+    def __init__(self):
+        self.params = params
 
     '''
     --- Constructs the matrix that turns player ranges into showdown equity.
@@ -27,15 +34,15 @@ class TerminalEquity():
     -- @local
     '''
     def get_last_round_call_matrix(self,board_cards, call_matrix):
-        #assert(board_cards.size(1) == 1 or board_cards.size(1) == 2, 'Only Leduc and extended Leduc are now supported' )
+        assert board_cards.size(1) == 1 or board_cards.size(1) == 2, 'Only Leduc and extended Leduc are now supported'
         strength = evaluator.batch_eval(board_cards)
         ##--handling hand stregths (winning probs);
-        strength_view_1 = strength.view(game_settings.card_count, 1).expandAs(call_matrix)
-        strength_view_2 = strength.view(1, game_settings.card_count).expandAs(call_matrix)
+        strength_view_1 = torch.Tensor.expand_as(strength.view(game_settings.card_count, 1),call_matrix)
+        strength_view_2 = torch.Tensor.expand_as(strength.view(1, game_settings.card_count), call_matrix)
 
-        call_matrix.copy(torch.gt(strength_view_1, strength_view_2))
+        np.copy(call_matrix,(torch.gt(strength_view_1, strength_view_2))) ##it looks that torch.gt should work
+        ##not sure what the following is doing.
         call_matrix.csub(torch.lt(strength_view_1, strength_view_2).typeAs(call_matrix))
-
         self._handle_blocking_cards(call_matrix, board_cards)
 
     '''
@@ -47,7 +54,7 @@ class TerminalEquity():
     -- @param board a possibly empty vector of board cards
     -- @local
     '''
-    def _handle_blocking_cards(self, equity_matrix, board):
+    def _handle_blocking_cards(self,equity_matrix, board):
         possible_hand_indexes = card_tools.get_possible_hand_indexes(board)
         possible_hand_matrix = possible_hand_indexes.view(1, game_settings.card_count).expandAs(equity_matrix)
         equity_matrix.cmul(possible_hand_matrix)
@@ -183,5 +190,5 @@ class TerminalEquity():
         self.fold_value(ranges[1].view(1,  -1), result[2].view(1,  -1))
         self.fold_value(ranges[2].view(1,  -1), result[1].view(1,  -1))
         result[folding_player].mul(-1)
-
-    def set_board(torch.Tensor()):
+    torch.Tensor
+    # def set_board(torch.Tensor()):
