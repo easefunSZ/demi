@@ -12,8 +12,10 @@ sys.path.insert(0, os.path.abspath('..'))
 # sys.path.insert(0,'../Settings')
 sys.path.insert(0, os.path.abspath('Game'))
 sys.path.insert(0, os.path.abspath('Settings'))
+import card_to_string_conversion
 from arguments import params
 from constants import constants
+card_to_string = card_to_string_conversion
 
 class TreeVisualiser(object):
     # arguments = require
@@ -94,9 +96,9 @@ class TreeVisualiser(object):
         out = {}
 
         ##--1.0 label
-        out["label"] = '"<f0>' + node["current_player"]
+        out["label"] = '"<f0>' + str(node["current_player"])
 
-        if node["terminal"]: #contains
+        if "terminal" in node and node["terminal"]: #contains
             if node["type"] == constants["node_types"]["terminal_fold"]:
                 out["label"] = out["label"] + '| TERMINAL FOLD'
             elif node["type"] == constants["node_types"]["terminal_call"]:
@@ -104,11 +106,11 @@ class TreeVisualiser(object):
             else:
                 assert ('unknown terminal node type')
         else:
-            out["label"] = out["label"] + '| bet1. ' + node["bets"][constants["players"]["P1"]] + '| bet2. ' + node["bets"][
-                constants["players"]["P2"]]
+            out["label"] = out["label"] + '| bet1. ' + str(node["bets"][constants["players"]["P1"]]) + '| bet2. ' + str(node["bets"][
+                constants["players"]["P2"]])
 
-            if node.street:
-                out["label"] = out["label"] + '| street. ' + node["street"]
+            if "street" in node and node["street"]:
+                out["label"] = out["label"] + '| street. ' + str(node["street"])
                 out["label"] = out["label"] + '| board. ' + card_to_string.cards_to_string(node["board"])
                 out["label"] = out["label"] + '| depth. ' + node["depth"]
 
