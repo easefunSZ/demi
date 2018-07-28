@@ -67,19 +67,19 @@ class TreeVisualiser(object):
     def add_range_info(self, node):
         out = ""
 
-        if (node.ranges_absolute):
-            out = out + self.add_tensor(node.ranges_absolute[1], 'abs_range1')
-            out = out + self.add_tensor(node.ranges_absolute[2], 'abs_range2')
+        if "ranges_absolute" in node and node["ranges_absolute"]:
+            out = out + self.add_tensor(node["ranges_absolute"][0], 'abs_range1')
+            out = out + self.add_tensor(node["ranges_absolute"][1], 'abs_range2')
 
-        if (node.cf_values):
+        if "cf_values" in node and node["cf_values"]:
             ##--cf values computed by real tree dfs
-            out = out + self.add_tensor(node.cf_values[1], 'cf_values1')
-            out = out + self.add_tensor(node.cf_values[2], 'cf_values2')
+            out = out + self.add_tensor(node["cf_values"][0], 'cf_values1')
+            out = out + self.add_tensor(node["cf_values"][1], 'cf_values2')
 
-        if (node.cf_values_br):
+        if "cf_values_br" in node and node["cf_values_br"]:
             ##--cf values that br has in real tree
-            out = out + self.add_tensor(node.cf_values_br[1], 'cf_values_br1')
-            out = out + self.add_tensor(node.cf_values_br[2], 'cf_values_br2')
+            out = out + self.add_tensor(node["cf_values_br"][0], 'cf_values_br1')
+            out = out + self.add_tensor(node["cf_values_br"][1], 'cf_values_br2')
 
         return out
 
@@ -94,17 +94,17 @@ class TreeVisualiser(object):
         out = {}
 
         ##--1.0 label
-        out["label"] = '"<f0>' + node.current_player
+        out["label"] = '"<f0>' + node["current_player"]
 
         if node["terminal"]: #contains
-            if node["type"] == constants["node_types"].terminal_fold:
+            if node["type"] == constants["node_types"]["terminal_fold"]:
                 out["label"] = out["label"] + '| TERMINAL FOLD'
-            elif node["type"] == constants["node_types"].terminal_call:
+            elif node["type"] == constants["node_types"]["terminal_call"]:
                 out["label"] = out["label"] + '| TERMINAL CALL'
             else:
                 assert ('unknown terminal node type')
         else:
-            out["label"] = out["label"] + '| bet1. ' + node.bets[constants.players.P1] + '| bet2. ' + node["bets"][
+            out["label"] = out["label"] + '| bet1. ' + node["bets"][constants["players"]["P1"]] + '| bet2. ' + node["bets"][
                 constants["players"]["P2"]]
 
             if node.street:
@@ -112,12 +112,12 @@ class TreeVisualiser(object):
                 out["label"] = out["label"] + '| board. ' + card_to_string.cards_to_string(node["board"])
                 out["label"] = out["label"] + '| depth. ' + node["depth"]
 
-        if node.margin:
-            out["label"] = out["label"] + '| margin. ' + node.margin
+        if "margin" in node and node["margin"]:
+            out["label"] = out["label"] + '| margin. ' + node["margin"]
 
         out["label"] = out["label"] + self.add_range_info(node)
 
-        if (node["cfv_infset"]):
+        if "cfv_infset" in node and node["cfv_infset"]:
             out["label"] = out["label"] + '| cfv1. ' + node["cfv_infset"][1]
             out["label"] = out["label"] + '| cfv2. ' + node["cfv_infset"][2]
             out["label"] = out["label"] + '| cfv_br1. ' + node["cfv_br_infset"][1]
@@ -125,7 +125,7 @@ class TreeVisualiser(object):
             out["label"] = out["label"] + '| epsilon1. ' + node["epsilon"][1]
             out["label"] = out["label"] + '| epsilon2. ' + node["epsilon"][2]
 
-        if node.lookahead_coordinates:
+        if "lookahead_coordinates" in node and node["lookahead_coordinates"]:
             out["label"] = out["label"] + '| COORDINATES '
             out["label"] = out["label"] + '| action_id. ' + node["lookahead_coordinates"][1]
             out["label"] = out["label"] + '| parent_action_id. ' + node["lookahead_coordinates"][2]
