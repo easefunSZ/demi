@@ -3,14 +3,25 @@
 -- @classmod tree_visualiser
 '''''
 
+import os
+import sys
+import numpy as np
+import copy
+sys.path.insert(0, os.path.abspath('..'))
+# sys.path.insert(0,'../Game')
+# sys.path.insert(0,'../Settings')
+sys.path.insert(0, os.path.abspath('Game'))
+sys.path.insert(0, os.path.abspath('Settings'))
+from arguments import params
+from constants import constants
 
 class TreeVisualiser(object):
-    arguments = require
-    'Settings.arguments'
-    constants = require
-    'Settings.constants'
-    card_to_string = require
-    'Game.card_to_string_conversion'
+    # arguments = require
+    # 'Settings.arguments'
+    # constants = require
+    # 'Settings.constants'
+    # card_to_string = require
+    # 'Game.card_to_string_conversion'
 
     # --TODO. README
     # --dot tree_2.dot -Tpng -O
@@ -83,50 +94,50 @@ class TreeVisualiser(object):
         out = {}
 
         ##--1.0 label
-        out.label = '"<f0>' + node.current_player
+        out["label"] = '"<f0>' + node.current_player
 
-        if node.terminal:
-            if node.type == constants.node_types.terminal_fold:
-                out.label = out.label + '| TERMINAL FOLD'
-            elif node.type == constants.node_types.terminal_call:
-                out.label = out.label + '| TERMINAL CALL'
+        if node["terminal"]: #contains
+            if node["type"] == constants["node_types"].terminal_fold:
+                out["label"] = out["label"] + '| TERMINAL FOLD'
+            elif node["type"] == constants["node_types"].terminal_call:
+                out["label"] = out["label"] + '| TERMINAL CALL'
             else:
                 assert ('unknown terminal node type')
         else:
-            out.label = out.label + '| bet1. ' + node.bets[constants.players.P1] + '| bet2. ' + node.bets[
-                constants.players.P2]
+            out["label"] = out["label"] + '| bet1. ' + node.bets[constants.players.P1] + '| bet2. ' + node["bets"][
+                constants["players"]["P2"]]
 
             if node.street:
-                out.label = out.label + '| street. ' + node.street
-                out.label = out.label + '| board. ' + card_to_string.cards_to_string(node.board)
-                out.label = out.label + '| depth. ' + node.depth
+                out["label"] = out["label"] + '| street. ' + node["street"]
+                out["label"] = out["label"] + '| board. ' + card_to_string.cards_to_string(node["board"])
+                out["label"] = out["label"] + '| depth. ' + node["depth"]
 
         if node.margin:
-            out.label = out.label + '| margin. ' + node.margin
+            out["label"] = out["label"] + '| margin. ' + node.margin
 
-        out.label = out.label + self.add_range_info(node)
+        out["label"] = out["label"] + self.add_range_info(node)
 
-        if (node.cfv_infset):
-            out.label = out.label + '| cfv1. ' + node.cfv_infset[1]
-            out.label = out.label + '| cfv2. ' + node.cfv_infset[2]
-            out.label = out.label + '| cfv_br1. ' + node.cfv_br_infset[1]
-            out.label = out.label + '| cfv_br2. ' + node.cfv_br_infset[2]
-            out.label = out.label + '| epsilon1. ' + node.epsilon[1]
-            out.label = out.label + '| epsilon2. ' + node.epsilon[2]
+        if (node["cfv_infset"]):
+            out["label"] = out["label"] + '| cfv1. ' + node["cfv_infset"][1]
+            out["label"] = out["label"] + '| cfv2. ' + node["cfv_infset"][2]
+            out["label"] = out["label"] + '| cfv_br1. ' + node["cfv_br_infset"][1]
+            out["label"] = out["label"] + '| cfv_br2. ' + node["cfv_br_infset"][2]
+            out["label"] = out["label"] + '| epsilon1. ' + node["epsilon"][1]
+            out["label"] = out["label"] + '| epsilon2. ' + node["epsilon"][2]
 
         if node.lookahead_coordinates:
-            out.label = out.label + '| COORDINATES '
-            out.label = out.label + '| action_id. ' + node.lookahead_coordinates[1]
-            out.label = out.label + '| parent_action_id. ' + node.lookahead_coordinates[2]
-            out.label = out.label + '| gp_id. ' + node.lookahead_coordinates[3]
+            out["label"] = out["label"] + '| COORDINATES '
+            out["label"] = out["label"] + '| action_id. ' + node["lookahead_coordinates"][1]
+            out["label"] = out["label"] + '| parent_action_id. ' + node["lookahead_coordinates"][2]
+            out["label"] = out["label"] + '| gp_id. ' + node["lookahead_coordinates"][3]
 
-        out.label = out.label + '"'
+        out["label"] = out["label"] + '"'
 
         ##--2.0 name
-        out.name = '"node' + self.node_to_graphviz_counter + '"'
+        out["name"] = '"node' + self.node_to_graphviz_counter + '"'
 
         ##--3.0 shape
-        out.shape = '"record"'
+        out["shape"] = '"record"'
 
         self.node_to_graphviz_counter = self.node_to_graphviz_counter + 1
         return out
@@ -146,18 +157,18 @@ class TreeVisualiser(object):
     def nodes_to_graphviz_edge(self, from_, to, node, child_node):
         out = {}
 
-        out.id_from = from_.name
-        out.id_to = to.name
-        out.id = self.edge_to_graphviz_counter
+        out["id_from"] = from_["name"]
+        out["id_to"] = to["name"]
+        out["id"] = self.edge_to_graphviz_counter
 
         ##--get the child id of the child node
         child_id = -1
-        for i in range(1, len(node.children)):
-            if node.children[i] == child_node:
+        for i in range(1, len(node["children"])):
+            if node["children"][i] == child_node:
                 child_id = i
 
         assert (child_id != -1)
-        out.strategy = self.add_tensor(node.strategy[child_id], None, "%.2f", card_to_string.card_to_string_table)
+        out["strategy"] = self.add_tensor(node["strategy"][child_id], None, "%.2f", card_to_string.card_to_string_table)
 
         self.edge_to_graphviz_counter = self.edge_to_graphviz_counter + 1
         return out
@@ -176,7 +187,7 @@ class TreeVisualiser(object):
         table.insert(nodes, gv_node)
 
         for i in range(1, len(node.children)):
-            child_node = node.children[i]
+            child_node = node["children"][i]
             gv_node_child = self.graphviz_dfs(child_node, nodes, edges)
             gv_edge = self.nodes_to_graphviz_edge(gv_node, gv_node_child, node, child_node)
             table.insert(edges, gv_edge)
@@ -209,13 +220,13 @@ class TreeVisualiser(object):
 
         for i in range(1, len(nodes)):
             node = nodes[i]
-            node_text = node.name + '[' + 'label=' + node.label + ' shape = ' + node.shape + '];'
+            node_text = node["name"] + '[' + 'label=' + node["label"] + ' shape = ' + node["shape"] + '];'
 
             out = out + node_text
 
         for i in range(1, len(edges)):
             edge = edges[i]
-            edge_text = edge.id_from + '.f0 -> ' + edge.id_to + '.f0 [ id = ' + edge.id + ' label = "' + edge.strategy + '"];'
+            edge_text = edge["id_from"] + '.f0 -> ' + edge["id_to"] + '.f0 [ id = ' + edge["id"] + ' label = "' + edge["strategy"] + '"];'
             out = out + edge_text
 
         out = out + '}'
