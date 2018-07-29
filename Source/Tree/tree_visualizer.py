@@ -229,7 +229,7 @@ class TreeVisualiser(object):
 
         for i in range(0, len(edges)):
             edge = edges[i]
-            edge_text = str(edge["id_from"]) + '.f0 -> ' + str(edge["id_to"]) + '.f0 [ id = ' + str(edge["id"]) + ' label = "' + edge["strategy"] + '"];'
+            edge_text = str(edge["id_from"]) + ':f0 -> ' + str(edge["id_to"]) + ':f0 [ id = ' + str(edge["id"]) + ' label = "' + edge["strategy"] + '"];'
             out = out + edge_text
 
         out = out + '}'
@@ -243,4 +243,4 @@ class TreeVisualiser(object):
         print(os.system("dir"))
 
         ##--run graphviz program to generate image
-        os.system('dot ' + filename + ' -Tsvg -O')
+        os.system('dot ' + filename + ' -Tpng -O') # can be svg format using Tsvg
