@@ -5,80 +5,85 @@
 # -- @classmod mock_resolving
 
 import sys
+import os
+
 sys.path.insert(0, '../TerminalEquity')
 sys.path.insert(0, '../Lookahead')
+sys.path.insert(0, os.path.abspath('../Tree'))
+sys.path.insert(0, os.path.abspath('Game'))
+sys.path.insert(0, os.path.abspath('Settings'))
 from lookahead import Lookahead
-require 'Lookahead.lookahead'
-require 'Lookahead.cfrd_gadget'
-require 'Tree.tree_builder'
-require 'Tree.tree_visualiser'
-local arguments = require 'Settings.arguments'
-local constants = require 'Settings.constants'
-local tools = require 'tools'
-local card_tools = require 'Game.card_tools'
-local game_settings = require 'Settings.game_settings'
+import cfrd_gadget
+import tree_builder
+import tree_visualiser
+import arguments
+from constants import constants
+from card_tool import CardTool
+import tools
+import game_settings
 
-local MockResolving = torch.class('MockResolving')
 
---- Constructor
-function MockResolving:__init()
-end
+class MockResolving(object):
 
---- Does nothing.
--- @param node the node to "re-solve"
--- @param[opt] player_range not used
--- @param[opt] opponent_range not used
--- @see resolving.resolve_first_node
-function MockResolving:resolve_first_node(node, player_range, opponent_range)
-  self.node = node
-  self.action_count = self.node.actions:size(1)
-end
+    ##--- Constructor
+    def __init__(self):
+        print('this is MockResolving')
 
---- Does nothing.
--- @param node the node to "re-solve"
--- @param[opt] player_range not used
--- @param[opt] opponent_cfvs not used
--- @see resolving.resolve
-function MockResolving:resolve(node, player_range, opponent_cfvs)
-  self.node = node
-  self.action_count = self.node.actions:size(1)
-end
 
---- Gives the possible actions at the re-solve node.
--- @return the actions that can be taken at the re-solve node
--- @see resolving.get_possible_actions
-function MockResolving:get_possible_actions()
-  return self.node.actions
-end
+    # --- Does nothing.
+    # -- @param node the node to "re-solve"
+    # -- @param[opt] player_range not used
+    # -- @param[opt] opponent_range not used
+    # -- @see resolving.resolve_first_node
+    def resolve_first_node(self, node, player_range, opponent_range):
+        self.node = node
+        self.action_count = self.node.actions.size(1)
 
---- Returns an arbitrary vector.
--- @return a vector of 1s
--- @see resolving.get_root_cfv
-function MockResolving:get_root_cfv()
-  return arguments.Tensor(game_settings.card_count):fill(1)
-end
 
---- Returns an arbitrary vector.
--- @param[opt] action not used
--- @return a vector of 1s
--- @see resolving.get_action_cfv
-function MockResolving:get_action_cfv(action)
-  return arguments.Tensor(game_settings.card_count):fill(1)
-end
+    # --- Does nothing.
+    # -- @param node the node to "re-solve"
+    # -- @param[opt] player_range not used
+    # -- @param[opt] opponent_cfvs not used
+    # -- @see resolving.resolve
+    def resolve(self, node, player_range, opponent_cfvs):
+        self.node = node
+        self.action_count = self.node.actions.size(1)
 
---- Returns an arbitrary vector.
--- @param[opt] player_action not used
--- @param[opt] board not used
--- @return a vector of 1s
--- @see resolving.get_chance_action_cfv
-function MockResolving:get_chance_action_cfv(player_action, board)
-  return arguments.Tensor(game_settings.card_count):fill(1)
-end
 
---- Returns an arbitrary vector.
--- @param[opt] action not used
--- @return a vector of 1s
--- @see resolving.get_action_strategy
-function MockResolving:get_action_strategy(action)
-  return arguments.Tensor(game_settings.card_count):fill(1)
-end
+    # --- Gives the possible actions at the re-solve node.
+    # -- @return the actions that can be taken at the re-solve node
+    # -- @see resolving.get_possible_actions
+    def get_possible_actions(self):
+        return self.node.actions
+
+
+    # --- Returns an arbitrary vector.
+    # -- @return a vector of 1s
+    # -- @see resolving.get_root_cfv
+    def get_root_cfv(self):
+        return arguments.Tensor(game_settings.card_count).fill(1)
+
+
+    # --- Returns an arbitrary vector.
+    # -- @param[opt] action not used
+    # -- @return a vector of 1s
+    # -- @see resolving.get_action_cfv
+    def get_action_cfv(self, action):
+        return arguments.Tensor(game_settings.card_count).fill(1)
+
+
+    # --- Returns an arbitrary vector.
+    # -- @param[opt] player_action not used
+    # -- @param[opt] board not used
+    # -- @return a vector of 1s
+    # -- @see resolving.get_chance_action_cfv
+    def get_chance_action_cfv(self, player_action, board):
+        return arguments.Tensor(game_settings.card_count).fill(1)
+
+
+    # --- Returns an arbitrary vector.
+    # -- @param[opt] action not used
+    # -- @return a vector of 1s
+    # -- @see resolving.get_action_strategy
+    def get_action_strategy(self, action):
+        return arguments.Tensor(game_settings.card_count).fill(1)

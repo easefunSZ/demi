@@ -74,10 +74,10 @@ class TreeValues(object):
 
         ##--check if the range consists only of cards that don't overlap with the board
         impossible_hands_mask = hands_mask.clone().fill(1) - hands_mask
-        impossible_range_sum = node.ranges_absolute.clone().cmul(impossible_hands_mask:view(1,
+        impossible_range_sum = node.ranges_absolute.clone().cmul(impossible_hands_mask.view(1,
                                                                                             game_settings.card_count).expandAs(
             node.ranges_absolute)).sum()
-        assert (impossible_range_sum == 0, impossible_range_sum)
+        assert impossible_range_sum == 0, impossible_range_sum
 
         children_ranges_absolute = arguments.Tensor(len(node.children), constants.players_count,
                                                     game_settings.card_count)
@@ -96,7 +96,7 @@ class TreeValues(object):
         else:
             ##--copy the range for the non-acting player
             children_ranges_absolute[{{}, 3 - node.current_player, {}}] = node.ranges_absolute[
-                3 - node.current_player]:clone():repeatTensor(actions_count, 1)
+                3 - node.current_player].clone().repeatTensor(actions_count, 1)
 
             ##--multiply the range for the acting player using his strategy
             ranges_mul_matrix = node.ranges_absolute[node.current_player].repeatTensor(actions_count, 1)
@@ -214,9 +214,9 @@ class TreeValues(object):
 
         ##--2.0 check the starting ranges
         checksum = starting_ranges.sum(2)[{{}, 1}]
-        assert (math.abs(checksum[1] - 1) < 0.0001, 'starting range does not sum to 1')
-        assert (math.abs(checksum[2] - 1) < 0.0001, 'starting range does not sum to 1')
-        assert (starting_ranges.lt(0).sum() == 0)
+        assert math.fabs(checksum[1] - 1) < 0.0001, 'starting range does not sum to 1'
+        assert math.fabs(checksum[2] - 1) < 0.0001, 'starting range does not sum to 1'
+        assert starting_ranges.lt(0).sum() == 0
 
         ##--3.0 compute the values
         self._fill_ranges_dfs(root, starting_ranges)

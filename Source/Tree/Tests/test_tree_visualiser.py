@@ -5,8 +5,8 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0,os.path.abspath('../../Game'))
 sys.path.insert(0,os.path.abspath('../../Settings'))
 sys.path.insert(0,os.path.abspath('../../Tree'))
-sys.path.append('../../Tree')
-sys.path.append('../Tree')
+# sys.path.append('../../Tree')
+# sys.path.append('../Tree')
 from arguments import params
 from constants import constants
 import game_settings

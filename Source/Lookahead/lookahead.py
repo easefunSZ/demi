@@ -2,7 +2,7 @@ import lookahead_builder
 
 import sys
 
-sys.path.insert(0, '/Users/lidingcheng/Documents/software/demi/Source/TerminalEquity')
+sys.path.insert(0, '../TerminalEquity')
 from terminal_equity import TerminalEquity
 from cfrd_gadget import CFRDGadget
 
