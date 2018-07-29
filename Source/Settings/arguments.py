@@ -28,6 +28,7 @@ params['bet_sizing']={1}
 params['acpc_server']= FLAGS.acpc_server
 params['acpc_server_port']=FLAGS.acpc_server_port
 params['street_count']=FLAGS.street_count
+params['data_directory'] = '../Data/'
 params['ante']=FLAGS.ante
 params['stack']=FLAGS.stack
 params['cfr_iters']=FLAGS.cfr_iters

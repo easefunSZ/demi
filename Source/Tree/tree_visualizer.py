@@ -15,7 +15,8 @@ sys.path.insert(0, os.path.abspath('Settings'))
 import card_to_string_conversion
 from arguments import params
 from constants import constants
-card_to_string = card_to_string_conversion
+# card_to_string = card_to_string_conversion
+card_to_string = card_to_string_conversion.CardToString()
 
 class TreeVisualiser(object):
     # arguments = require
@@ -29,31 +30,28 @@ class TreeVisualiser(object):
     # --dot tree_2.dot -Tpng -O
     #
     # --- Constructor
-    def _init_(self):
+    def __init__(self):
         self.node_to_graphviz_counter = 0
         self.edge_to_graphviz_counter = 0
 
     # --- Generates a string representation of a tensor.
     # -- @param tensor a tensor
     # -- @param[opt] name a name for the tensor
-    # -- @param[opt] format a format string to use with @{string.format} for each
+    # -- @param[opt] format a format string to use with @{string.format} for  # hard coded format
     # -- element of the tensor
     # -- @param[opt] labels a list of labels for the elements of the tensor
     # -- @return a string representation of the tensor
     # -- @local
-    def add_tensor(self, tensor, name, format, labels):
+    def add_tensor(self, tensor, name, labels):
 
         out = ''
         if name:
             out = '| ' + name + '. '
 
-        if not format:
-            format = "%.3f"
-
-        for i in range(1, tensor.size(1)):
+        for i in range(0, np.shape(tensor)[0]):
             if labels:
                 out = out + labels[i] + "."
-            out = out + string.format(format, tensor[i]) + ", "
+            out = out + "{0:.2f}".format(tensor[i]) + ", "
         return out
 
     '''
@@ -112,7 +110,7 @@ class TreeVisualiser(object):
             if "street" in node and node["street"]:
                 out["label"] = out["label"] + '| street. ' + str(node["street"])
                 out["label"] = out["label"] + '| board. ' + card_to_string.cards_to_string(node["board"])
-                out["label"] = out["label"] + '| depth. ' + node["depth"]
+                out["label"] = out["label"] + '| depth. ' + str(node["depth"])
 
         if "margin" in node and node["margin"]:
             out["label"] = out["label"] + '| margin. ' + node["margin"]
@@ -120,23 +118,23 @@ class TreeVisualiser(object):
         out["label"] = out["label"] + self.add_range_info(node)
 
         if "cfv_infset" in node and node["cfv_infset"]:
-            out["label"] = out["label"] + '| cfv1. ' + node["cfv_infset"][1]
-            out["label"] = out["label"] + '| cfv2. ' + node["cfv_infset"][2]
-            out["label"] = out["label"] + '| cfv_br1. ' + node["cfv_br_infset"][1]
-            out["label"] = out["label"] + '| cfv_br2. ' + node["cfv_br_infset"][2]
-            out["label"] = out["label"] + '| epsilon1. ' + node["epsilon"][1]
-            out["label"] = out["label"] + '| epsilon2. ' + node["epsilon"][2]
+            out["label"] = out["label"] + '| cfv1. ' + node["cfv_infset"][0]
+            out["label"] = out["label"] + '| cfv2. ' + node["cfv_infset"][1]
+            out["label"] = out["label"] + '| cfv_br1. ' + node["cfv_br_infset"][0]
+            out["label"] = out["label"] + '| cfv_br2. ' + node["cfv_br_infset"][1]
+            out["label"] = out["label"] + '| epsilon1. ' + node["epsilon"][0]
+            out["label"] = out["label"] + '| epsilon2. ' + node["epsilon"][1]
 
         if "lookahead_coordinates" in node and node["lookahead_coordinates"]:
             out["label"] = out["label"] + '| COORDINATES '
-            out["label"] = out["label"] + '| action_id. ' + node["lookahead_coordinates"][1]
-            out["label"] = out["label"] + '| parent_action_id. ' + node["lookahead_coordinates"][2]
-            out["label"] = out["label"] + '| gp_id. ' + node["lookahead_coordinates"][3]
+            out["label"] = out["label"] + '| action_id. ' + node["lookahead_coordinates"][0]
+            out["label"] = out["label"] + '| parent_action_id. ' + node["lookahead_coordinates"][1]
+            out["label"] = out["label"] + '| gp_id. ' + node["lookahead_coordinates"][2]
 
         out["label"] = out["label"] + '"'
 
         ##--2.0 name
-        out["name"] = '"node' + self.node_to_graphviz_counter + '"'
+        out["name"] = '"node' + str(self.node_to_graphviz_counter) + '"'
 
         ##--3.0 shape
         out["shape"] = '"record"'
@@ -165,12 +163,13 @@ class TreeVisualiser(object):
 
         ##--get the child id of the child node
         child_id = -1
-        for i in range(1, len(node["children"])):
-            if node["children"][i] == child_node:
+        for i in range(0, len(node["children"])):
+            if node["children"][i] is child_node:
                 child_id = i
+                break;
 
         assert (child_id != -1)
-        out["strategy"] = self.add_tensor(node["strategy"][child_id], None, "%.2f", card_to_string.card_to_string_table)
+        out["strategy"] = self.add_tensor(node["strategy"][child_id], None, card_to_string.card_to_string_table)
 
         self.edge_to_graphviz_counter = self.edge_to_graphviz_counter + 1
         return out
@@ -186,13 +185,15 @@ class TreeVisualiser(object):
     def graphviz_dfs(self, node, nodes, edges):
 
         gv_node = self.node_to_graphviz(node)
-        table.insert(nodes, gv_node)
+        nodes[len(nodes)] = gv_node
+        # table.insert(nodes, gv_node)
 
-        for i in range(1, len(node.children)):
+        for i in range(0, len(node["children"])):
             child_node = node["children"][i]
             gv_node_child = self.graphviz_dfs(child_node, nodes, edges)
             gv_edge = self.nodes_to_graphviz_edge(gv_node, gv_node_child, node, child_node)
-            table.insert(edges, gv_edge)
+            # table.insert(edges, gv_edge)
+            edges[len(edges)] = gv_edge
         return gv_node
 
     '''
@@ -220,23 +221,26 @@ class TreeVisualiser(object):
         edges = {}
         self.graphviz_dfs(root, nodes, edges)
 
-        for i in range(1, len(nodes)):
+        for i in range(0, len(nodes)):
             node = nodes[i]
             node_text = node["name"] + '[' + 'label=' + node["label"] + ' shape = ' + node["shape"] + '];'
 
             out = out + node_text
 
-        for i in range(1, len(edges)):
+        for i in range(0, len(edges)):
             edge = edges[i]
-            edge_text = edge["id_from"] + '.f0 -> ' + edge["id_to"] + '.f0 [ id = ' + edge["id"] + ' label = "' + edge["strategy"] + '"];'
+            edge_text = str(edge["id_from"]) + '.f0 -> ' + str(edge["id_to"]) + '.f0 [ id = ' + str(edge["id"]) + ' label = "' + edge["strategy"] + '"];'
             out = out + edge_text
 
         out = out + '}'
 
         ##--write into dot file
-        file = io.open(arguments.data_directory + 'Dot/' + filename, 'w')
+        # file = open(params['data_directory'] + 'Dot/' + filename, 'w')
+        file = open(filename, 'w')
         file.write(out)
         file.close()
 
+        print(os.system("dir"))
+
         ##--run graphviz program to generate image
-        os.execute('dot ' + arguments.data_directory + 'Dot/' + filename + ' -Tsvg -O')
+        os.system('dot ' + filename + ' -Tsvg -O')
