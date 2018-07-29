@@ -13,19 +13,19 @@
 # require 'Nn.value_nn'
 import sys
 
-sys.path.insert(0, '/Users/lidingcheng/Documents/software/demi/Source/TerminalEquity')
+sys.path.insert(0, '../TerminalEquity')
 
 
 class LookaheadBuilder(object):
-    ''''
+    '''
     --used to load NN only once
     local neural_net = None
     
     --- Constructor
     -- @param lookahead the @{lookahead|Lookahead} to generate data structures for
-    ''''
+    '''
 
-    def __init(self, lookahead):
+    def __init__(self,lookahead):
         self.lookahead = lookahead
         self.lookahead.ccall_action_index = 1
         self.lookahead.fold_action_index = 2

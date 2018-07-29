@@ -14,8 +14,7 @@ import card_to_string_conversion
 from card_to_string_conversion import CardToString
 import math
 from tree_builder import PokerTreeBuilder
-import tree_visulizer
-#from tree_visulizer import TreeVisualiser
+from tree_visualizer import TreeVisualiser
 from tree_values import TreeValues
 
 card_to_string = CardToString()

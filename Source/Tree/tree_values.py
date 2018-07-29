@@ -24,7 +24,7 @@ card_to_string = CardToString()
 # constants = constants.set_constants()
 builder = tree_builder.PokerTreeBuilder()
 
-import mock_resolving
+from mock_resolving import MockResolving
 import resolving
 from terminal_equity import TerminalEquity
 

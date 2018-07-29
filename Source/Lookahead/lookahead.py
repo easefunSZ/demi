@@ -17,10 +17,11 @@ from cfrd_gadget import CFRDGadget
 '''
 
 
-class Lookahead():
+class Lookahead(object):
     ##--- Constructor
     def __init__(self):
-        self.builder = LookaheadBuilder(self)
+        print('this is Lookahead')
+        #self.builder = LookaheadBuilder(self)
 
     '''
     --- Constructs the lookahead from a game's public tree.
