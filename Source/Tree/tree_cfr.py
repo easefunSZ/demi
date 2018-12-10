@@ -124,7 +124,7 @@ class TreeCFR():
 
                 child_node.ranges_absolute[1].copy(children_ranges_absolute[1][{i}])
                 child_node.ranges_absolute[2].copy(children_ranges_absolute[2][{i}])
-                self.cfrs_iter_dfs(child_node, iter, card_count)
+                self.cfrs_iter_dfs(child_node, iter, game_settings.card_count)
                 cf_values_allactions[i] = child_node.cf_values
 
             node.cf_values = arguments.Tensor(constants.players_count, game_settings.card_count).fill(0)
@@ -141,9 +141,9 @@ class TreeCFR():
 
             if node.current_player != constants.players.chance:
                 ##--computing regrets
-                current_regrets = cf_values_allactions[{{}, {node.current_player}, {}}]:reshape(actions_count,
+                current_regrets = cf_values_allactions[{{}, {node.current_player}, {}}].reshape(actions_count,
                                                                                                 game_settings.card_count).clone()
-                current_regrets.csub(node.cf_values[node.current_player]:view(1, game_settings.card_count).expandAs(
+                current_regrets.csub(node.cf_values[node.current_player].view(1, game_settings.card_count).expandAs(
                     current_regrets))
 
                 self.update_regrets(node, current_regrets)
