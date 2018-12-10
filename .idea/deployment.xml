@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="dingcheng@172.19.56.196:22">
+  <component name="PublishConfigData" autoUpload="Always" promptOnRemoteOverwrite="CHECK_TIMESTAMP" serverName="dingcheng@172.19.56.154:22">
     <serverData>
-      <paths name="dingcheng@172.19.56.196:22">
+      <paths name="dingcheng@172.19.56.154:22">
         <serverdata>
           <mappings>
-            <mapping deploy="/media/data1/dingcheng/software/demi" local="$PROJECT_DIR$" web="/" />
-            <mapping local="$PROJECT_DIR$/../Poker" />
+            <mapping deploy="/media/data2/dingcheng/software/demi" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>

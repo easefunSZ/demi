@@ -10,7 +10,7 @@ sys.path.insert(0, '../Settings')
 sys.path.insert(0, '../Game')
 sys.path.insert(0, '../Lookahead')
 sys.path.insert(0, '../TerminalEquity')
-sys.path.insert(0,os.path.abspath('../../Tree'))
+sys.path.insert(0,os.path.abspath('../Tree'))
 
 
 from arguments import params
@@ -23,8 +23,8 @@ import tree_builder
 card_to_string = CardToString()
 # constants = constants.set_constants()
 builder = tree_builder.PokerTreeBuilder()
-
-from mock_resolving import MockResolving
+import mock_resolving
+#from mock_resolving import MockResolving
 import resolving
 from terminal_equity import TerminalEquity
 

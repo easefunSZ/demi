@@ -30,6 +30,7 @@ import card_tool
 from arguments import params
 
 card_to_string = CardToString()
+card_tools = Card
 
 
 # M = {}
@@ -77,7 +78,7 @@ def evaluate(hand, impossible_hand_value):
     ##not sure what differences between lua assert and python assert
     assert np.max(hand) <= game_settings.card_count and np.min(hand) > 0, 'hand does not correspond to any cards'
     impossible_hand_value = impossible_hand_value or -1
-    if not card_tools.hand_is_possible(hand):
+    if not card_tool.hand_is_possible(hand):
         return impossible_hand_value
     ##--we are not interested in the hand suit - we will use ranks instead of cards
     hand_ranks = np.copy(hand)

@@ -5,9 +5,10 @@
 -- @classmod cfrd_gadget
 '''''
 import sys
+import os
 
-sys.path.insert(0, '/Users/lidingcheng/Documents/software/demi/Source/Settings')
-sys.path.insert(0, '/Users/lidingcheng/Documents/software/demi/Source/Game')
+sys.path.insert(0, '../Settings')
+sys.path.insert(0, '../Game')
 
 import arguments
 import constants

@@ -25,3 +25,4 @@ params['root_node']['current_player'] = constants['players']['P1']
 params['root_node']['bets'] = np.array([100, 100])
 
 tree = builder.build_tree(params)
+print('tree is built')

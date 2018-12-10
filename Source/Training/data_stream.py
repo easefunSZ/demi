@@ -4,6 +4,7 @@
 '''''
 
 # require 'torch'
+import torch
 arguments = require
 'Settings.arguments'
 

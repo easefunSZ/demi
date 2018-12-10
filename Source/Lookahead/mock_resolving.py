@@ -3,20 +3,18 @@
 # --
 # -- Used for debugging.
 # -- @classmod mock_resolving
-
 import sys
 import os
-
 sys.path.insert(0, '../TerminalEquity')
-sys.path.insert(0, '../Lookahead')
 sys.path.insert(0, os.path.abspath('../Tree'))
-sys.path.insert(0, os.path.abspath('Game'))
-sys.path.insert(0, os.path.abspath('Settings'))
+sys.path.insert(0, os.path.abspath('../Game'))
+sys.path.insert(0, os.path.abspath('../Settings'))
+import arguments
 from lookahead import Lookahead
 import cfrd_gadget
 import tree_builder
 import tree_visualiser
-import arguments
+
 from constants import constants
 from card_tool import CardTool
 import tools
@@ -26,8 +24,8 @@ import game_settings
 class MockResolving(object):
 
     ##--- Constructor
-    def __init__(self):
-        print('this is MockResolving')
+    # def __init__(self):
+    #     print('this is MockResolving')
 
 
     # --- Does nothing.

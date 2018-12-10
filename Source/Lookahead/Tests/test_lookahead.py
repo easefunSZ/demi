@@ -16,24 +16,27 @@ import bet_sizing
 import card_tool
 from card_to_string_conversion import CardToString
 import tree_builder
-from lookahead import Lookahead
-from resolving import Resovling
+#from lookahead import Lookahead
+from resolving import Resolving
 
+resolving = Resolving()
 current_node = {}
 
 current_node['board'] = card_to_string.string_to_board('Ks')
 current_node['street'] = 2
 current_node['current_player'] = constants.players.P1
-current_node['bets'] = arguments.Tensor{100, 100}
+current_node['bets'] = np.array(100,100)
 
-player_range = card_tool.get_random_range(current_node.board, 2)
-opponent_range = card_tool.get_random_range(current_node.board, 4)
+player_range = card_tool.get_random_range(current_node['board'], 2)
+opponent_range = card_tool.get_random_range(current_node['board'], 4)
 
 '''
 ##--resolving:resolve_first_node(current_node, player_range, opponent_range)
+'''
 
 resolving.resolve(current_node, player_range, opponent_range)
 
+'''
 #--[[
 lookahead = Lookahead()
 

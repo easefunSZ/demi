@@ -1,11 +1,25 @@
 import lookahead_builder
 
 import sys
+import os
+import torch
 
 sys.path.insert(0, '../TerminalEquity')
+sys.path.insert(0, '../Lookahead')
+sys.path.insert(0, os.path.abspath('../Tree'))
+sys.path.insert(0, os.path.abspath('../Game'))
+sys.path.insert(0, os.path.abspath('../Settings'))
+import cfrd_gadget
 from terminal_equity import TerminalEquity
 from cfrd_gadget import CFRDGadget
-
+import tree_builder
+import tree_visualiser
+import arguments
+from constants import constants
+from card_tool import CardTool
+import lookhead_builder
+import tools
+import game_settings
 # local arguments = require 'Settings.arguments'
 # local constants = require 'Settings.constants'
 # local game_settings = require 'Settings.game_settings'
@@ -16,12 +30,11 @@ from cfrd_gadget import CFRDGadget
 -- @classmod lookahead
 '''
 
-
 class Lookahead(object):
     ##--- Constructor
     def __init__(self):
         print('this is Lookahead')
-        #self.builder = LookaheadBuilder(self)
+        self.builder = lookhead_builder.LookaheadBuilder(self)
 
     '''
     --- Constructs the lookahead from a game's public tree.
@@ -47,7 +60,6 @@ class Lookahead(object):
     -- @param player_range a range vector for the re-solving player
     -- @param opponent_range a range vector for the opponent
     '''
-
     def resolve_first_node(self, player_range, opponent_range):
         self.ranges_data[1][{{}, {}, {}, 1, {}}].copy(player_range)
         self.ranges_data[1][{{}, {}, {}, 2, {}}].copy(opponent_range)
@@ -63,7 +75,6 @@ class Lookahead(object):
     -- @param opponent_cfvs a vector of cfvs achieved by the opponent
     -- before re-solving
     '''
-
     def resolve(self, player_range, opponent_cfvs):
         assert (player_range)
         assert (opponent_cfvs)
@@ -81,7 +92,7 @@ class Lookahead(object):
 
     def _compute(self):
         ##--1.0 main loop
-        for iter=1, arguments.cfr_iters:
+        for iter in range(1, arguments.cfr_iters):
             self._set_opponent_starting_range(iter)
             self._compute_current_strategies()
             self._compute_ranges()
@@ -102,7 +113,7 @@ class Lookahead(object):
     '''
 
     def _compute_current_strategies(self):
-        for d=2, self.depth:
+        for d in range(2, self.depth):
             self.positive_regrets_data[d].copy(self.regrets_data[d])
             self.positive_regrets_data[d].clamp(self.regret_epsilon, tools.max_number())
 
@@ -122,7 +133,7 @@ class Lookahead(object):
     ## reaching each state of the lookahead.
     ## @local
     def _compute_ranges(self):
-        for d=1, self.depth-1:
+        for d in range(1, self.depth-1):
             current_level_ranges = self.ranges_data[d]
             next_level_ranges = self.ranges_data[d + 1]
 
@@ -162,7 +173,7 @@ class Lookahead(object):
     ## values at each lookahead state which is a terminal state of the game.
     ## @local
     def _compute_terminal_equities_terminal_equity(self):
-        for d=2, self.depth:
+        for d in range(2, self.depth):
             ##call term eq evaluation
             if self.tree.street == 1:
                 if d > 2 or self.first_call_terminal:
@@ -190,7 +201,7 @@ class Lookahead(object):
     def _compute_terminal_equities_next_street_box(self):
 
         assert (self.tree.street == 1)
-        for d=2, self.depth:
+        for d in range(2, self.depth):
 
             if d > 2 or self.first_call_transition:
                 self.next_street_boxes_inputs = self.next_street_boxes_inputs or {}
@@ -248,7 +259,7 @@ class Lookahead(object):
         pot_mult = self.pot_size[3][2]
 
         if box_outputs == None:
-            assert (false)
+            assert (False)
         next_street_box.get_value_on_board(board, box_outputs)
         box_outputs.cmul(pot_mult)
         out = box_outputs[batch_index][3 - self.tree.current_player]
@@ -265,14 +276,14 @@ class Lookahead(object):
             self._compute_terminal_equities_next_street_box()
         self._compute_terminal_equities_terminal_equity()
         ##multiply by pot scale factor
-        for d=2, self.depth:
+        for d in range(2, self.depth):
             self.cfvs_data[d].cmul(self.pot_size[d])
 
     ##- Using the players' reach probabilities and terminal counterfactual
     ## values, computes their cfvs at all states of the lookahead.
     ## @local
     def _compute_cfvs(self):
-        for d=self.depth, 2, -1:
+        for d in range(self.depth, 2, -1):
             gp_layer_terminal_actions_count = self.terminal_actions_count[d - 2]
             ggp_layer_nonallin_bets_count = self.nonallinbets_count[d - 3]
 
@@ -331,7 +342,7 @@ class Lookahead(object):
     ## for every state in the lookahead.
     ## @local
     def _compute_regrets(self):
-        for d=self.depth, 2, -1:
+        for d in range(self.depth, 2, -1):
             gp_layer_terminal_actions_count = self.terminal_actions_count[d - 2]
             gp_layer_bets_count = self.bets_count[d - 2]
             ggp_layer_nonallin_bets_count = self.nonallinbets_count[d - 3]
