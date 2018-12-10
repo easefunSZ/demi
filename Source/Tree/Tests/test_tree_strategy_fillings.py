@@ -7,16 +7,18 @@ sys.path.insert(0,os.path.abspath('../../Game'))
 sys.path.insert(0,os.path.abspath('../../Settings'))
 sys.path.insert(0,os.path.abspath('../../Tree'))
 from arguments import params
+import arguments
 import constants
 import game_settings
 import bet_sizing
-import card_tool
+from card_tool import CardTool
 import card_to_string_conversion
 from card_to_string_conversion import CardToString
 import math
 from tree_builder import PokerTreeBuilder
 #from tree_visulizer import TreeVisualiser
 from tree_values import TreeValues
+from tree_strategy_filling import TreeStrategyFilling
 card_to_string = CardToString()
 constants = constants.set_constants()
 builder = PokerTreeBuilder()
@@ -42,8 +44,8 @@ filling.fill_strategies(tree, 2, range1, range2)
 
 
 starting_ranges = arguments.Tensor(constants.players_count, game_settings.card_count)
-starting_ranges[1]:copy(range1)
-starting_ranges[2]:copy(range2)
+starting_ranges[1].copy(range1)
+starting_ranges[2].copy(range2)
 
 tree_values = TreeValues()
 tree_values.compute_values(tree, starting_ranges)

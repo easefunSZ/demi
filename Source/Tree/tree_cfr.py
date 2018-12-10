@@ -15,9 +15,9 @@ sys.path.insert(0, '../TerminalEquity')
 import arguments
 import constants
 import game_settings
-import card_tools
-import terminal_equity
-
+from card_tool import CardTool
+from terminal_equity import TerminalEquity
+import torch
 
 class TreeCFR():
 
