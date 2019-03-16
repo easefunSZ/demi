@@ -6,9 +6,12 @@
 '''''
 import sys
 import os
-
+import numpy as np
+import torch
 sys.path.insert(0, '../Settings')
 sys.path.insert(0, '../Game')
+sys.path.insert(0, '../..')
+print('path = ', os.path.abspath('../..'))
 
 import arguments
 import constants
@@ -34,26 +37,26 @@ class CFRDGadget():
         assert (board)
         self.input_opponent_range = player_range.clone()
         self.input_opponent_value = opponent_cfvs.clone()
-
         self.curent_opponent_values = arguments.Tensor(game_settings.card_count)
-
         self.regret_epsilon = 1.0 / 100000000
 
         ##--2 stands for 2 actions: play/terminate
-        self.opponent_reconstruction_regret = arguments.Tensor(2, game_settings.card_count)
-
-        self.play_current_strategy = arguments.Tensor(game_settings.card_count):fill(0)
-        self.terminate_current_strategy = arguments.Tensor(game_settings.card_count):fill(1)
-
+        #self.opponent_reconstruction_regret = arguments.params['Tensor'](2, game_settings.card_count)
+        self.opponent_reconstruction_regret = np.zeros(np.shape([2,game_settings.card_count]))
+        self.play_current_strategy = np.zeros(game_settings.card_count)
+        self.terminate_current_strategy = np.zeros(game_settings.card_count)
+        self.terminate_regrets = np.zeros(game_settings.card_count)
+        self.total_values = np.zeros(game_settings.card_count)
+        self.play_regrets = np.zeros(game_settings.card_count)
+        self.range_mask = np.zeros(game_settings.card_count)
+        #self.play_current_strategy = arguments.Tensor(game_settings.card_count):fill(0)
+        #self.terminate_current_strategy = arguments.Tensor(game_settings.card_count):fill(1)
         ##--holds achieved CFVs at each iteration so that we can compute regret
-        self.total_values = arguments.Tensor(game_settings.card_count)
-
-        self.terminate_regrets = arguments.Tensor(game_settings.card_count):fill(0)
-        self.play_regrets = arguments.Tensor(game_settings.card_count):fill(0)
-
+        #self.total_values = arguments.Tensor(game_settings.card_count)
+        #self.terminate_regrets = arguments.Tensor(game_settings.card_count):fill(0)
+        #self.play_regrets = arguments.Tensor(game_settings.card_count):fill(0)
         ##--init range mask for masking out impossible hands
-        self.range_mask = card_tools.get_possible_hand_indexes(board)
-
+        ## self.range_mask = card_tools.get_possible_hand_indexes(board)
     '''
     --- Uses one iteration of the gadget game to generate an opponent range for
     -- the current re-solving iteration.
@@ -68,9 +71,9 @@ class CFRDGadget():
         terminate_values = self.input_opponent_value
 
         ##--1.0 compute current regrets
-        torch.cmul(self.total_values, play_values, self.play_current_strategy)
+        torch.mul(self.total_values, play_values, self.play_current_strategy)
         self.total_values_p2 = self.total_values_p2 or self.total_values.clone().zero()
-        torch.cmul(self.total_values_p2, terminate_values, self.terminate_current_strategy)
+        torch.mul(self.total_values_p2, terminate_values, self.terminate_current_strategy)
         self.total_values.add(self.total_values_p2)
 
         self.play_current_regret = self.play_current_regret or play_values.clone().zero()

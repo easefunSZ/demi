@@ -13,23 +13,26 @@
 import sys
 import os
 sys.path.insert(0, '../TerminalEquity')
-sys.path.insert(0, '../Lookahead')
+sys.path.insert(0, '..')
 sys.path.insert(0, os.path.abspath('../Nn'))
 sys.path.insert(0, os.path.abspath('../Tree'))
 sys.path.insert(0, os.path.abspath('Game'))
 sys.path.insert(0, os.path.abspath('Settings'))
 import arguments
-from lookahead import Lookahead
-import cfrd_gadget
-import tree_builder
-import tree_visualiser
-from terminal_equity import TerminalEquity
+print(os.path.abspath('../Lookahead'))
+print(os.path.abspath('../Tree'))
+import lookahead
+#from lookahead import Lookahead
+#import cfrd_gadget
+#import tree_builder
+#import tree_visualiser
+#from terminal_equity import TerminalEquity
 from constants import constants
-from card_tool import CardTool
-import tools
+#from card_tool import CardTool
+#import tools
 import game_settings
-import value_nn
-import next_round_value
+#import value_nn
+#import next_round_value
 import torch
 import math
 

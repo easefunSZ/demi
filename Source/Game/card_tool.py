@@ -39,10 +39,10 @@ class CardTool(object):
     # --  is `1` if the hand shares no cards with the board and `0` otherwise
     def get_possible_hand_indexes(self, board):
         out = [0] * self.m['card_count']
-        if len(board) == 0:
+        if board == 0:
             return out
 
-        whole_hand = np.zeros(len(board) + 1, dtype=int)
+        whole_hand = np.zeros(board + 1, dtype=int)
         whole_hand[0:-1] = board
         for card in range(0, self.m['card_count']):
             whole_hand[-1] = card
@@ -78,8 +78,8 @@ class CardTool(object):
     # -- @return a range vector where invalid hands are given 0 probability, each
     # -- valid hand is given a probability randomly sampled from the uniform
     # -- distribution on [0,1), and the resulting range is normalized
-    def get_random_range(self, board):
-        out = self.get_uniform_range(board)
+    def get_random_range(self, board,seed):
+        out = self.get_uniform_range(seed)
         total = 0.0
         for i in range(0, len(out)):
             if out[i] != 0:

@@ -15,7 +15,7 @@ sys.path.insert(0,'../Game')
 import game_settings
 import evaluator
 import arguments
-import card_tools
+import card_tool
 from arguments import params
 
 class TerminalEquity(object):

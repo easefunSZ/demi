@@ -3,13 +3,11 @@
 --@module tools
 '''''
 M = {}
-
 '''
 --- Generates a string representation of a table.
 --@param table the table
 --@return the string
 '''
-
 
 def table_to_string(table):
     out = "{"

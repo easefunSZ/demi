@@ -4,20 +4,24 @@ import sys
 import os
 import torch
 
-sys.path.insert(0, '../TerminalEquity')
-sys.path.insert(0, '../Lookahead')
-sys.path.insert(0, os.path.abspath('../Tree'))
-sys.path.insert(0, os.path.abspath('../Game'))
-sys.path.insert(0, os.path.abspath('../Settings'))
+sys.path.insert(0, '../../TerminalEquity')
+sys.path.insert(0, '..')
+sys.path.insert(0, os.path.abspath('../../Tree'))
+sys.path.insert(0, os.path.abspath('../../Game'))
+sys.path.insert(0, os.path.abspath('../../Settings'))
+
+print('the path of TerminalEquity=', os.path.abspath('../../TerminalEquity'))
+print('the path of Tree=', os.path.abspath('../../Tree'))
+print('the path of lookahead=', os.path.abspath('..'))
 import cfrd_gadget
 from terminal_equity import TerminalEquity
 from cfrd_gadget import CFRDGadget
 import tree_builder
-import tree_visualiser
+import tree_visualizer
 import arguments
 from constants import constants
 from card_tool import CardTool
-import lookhead_builder
+import lookahead_builder
 import tools
 import game_settings
 # local arguments = require 'Settings.arguments'
@@ -34,7 +38,7 @@ class Lookahead(object):
     ##--- Constructor
     def __init__(self):
         print('this is Lookahead')
-        self.builder = lookhead_builder.LookaheadBuilder(self)
+        self.builder = lookahead_builder.LookaheadBuilder(self)
 
     '''
     --- Constructs the lookahead from a game's public tree.

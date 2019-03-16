@@ -27,10 +27,12 @@ sys.path.insert(0, '../Settings')
 import game_settings
 import card_to_string_conversion
 import card_tool
+import arguments
+import torch
 from arguments import params
 
-card_to_string = CardToString()
-card_tools = Card
+card_to_string = card_to_string_conversion.CardToString()
+card_tools = card_tool.CardTool()
 
 
 # M = {}
@@ -109,7 +111,8 @@ def batch_eval(board, impossible_hand_value):
     else:
         board_size = board.size()
         assert board_size == 1 or board_size == 2, 'Incorrect board size for Leduc'
-        whole_hand = argments.Tensor(board_size + 1)
+        whole_hand = arguments.Tensor(board_size + 1)
+        whole_hand = torch.FloatTensor
         whole_hand[-2] = board  ### it seems that whole_hand[{{1, -2}}]:copy(board) means that we copy board value into the second to the last of whole hand
         for card in range(1, game_settings.card_count):
             whole_hand[-1] = card
